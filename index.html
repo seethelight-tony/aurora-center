@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>極光盾 · 社群發文中心 W28</title>
+<style>
+  :root{
+    --gold:#e6ca5c; --gold-dark:#c9a93a; --bg:#faf8f2; --card:#ffffff;
+    --ink:#2b2b2b; --muted:#8a8577; --line:#eee6d0;
+    --ok:#4caf7d; --warn:#e0913d; --pub:#5b8dd9;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; background:var(--bg); color:var(--ink); padding-bottom:90px;}
+  header{background:linear-gradient(135deg,#fdf6dd,#f3e3a8); border-bottom:3px solid var(--gold); padding:18px 20px; position:sticky; top:0; z-index:10; box-shadow:0 2px 12px rgba(0,0,0,.06);}
+  header h1{font-size:19px;}
+  .stats{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:5px 12px; font-size:12.5px; display:flex; gap:6px; align-items:center;}
+  .stat b{font-size:16px;}
+  .stat.pending b{color:var(--warn);} .stat.approved b{color:var(--ok);} .stat.published b{color:var(--pub);}
+  .filters{display:flex; gap:6px; margin-top:10px; flex-wrap:wrap;}
+  .fbtn{border:1px solid var(--line); background:var(--card); border-radius:20px; padding:6px 14px; font-size:12.5px; cursor:pointer;}
+  .fbtn.active{background:var(--gold); border-color:var(--gold-dark); font-weight:700;}
+  main{max-width:860px; margin:18px auto; padding:0 14px;}
+  .strategy{background:linear-gradient(135deg,#fffdf5,#fbf3d9); border:2px solid var(--gold); border-radius:14px; padding:14px 18px; margin-bottom:16px;}
+  .strategy h2{font-size:15px; color:var(--gold-dark); margin-bottom:8px;}
+  .strategy .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px; font-size:13px; line-height:1.65;}
+  .strategy .cell{background:#fff; border-radius:10px; padding:9px 12px; border:1px solid var(--line);}
+  .strategy .cell b{color:var(--gold-dark);}
+  .today-banner{background:#2b2b2b; color:#fff; border-radius:12px; padding:11px 16px; margin-bottom:14px; font-size:13.5px; display:flex; align-items:center; gap:10px;}
+  .today-banner .n{background:var(--gold); color:#2b2b2b; border-radius:50%; min-width:25px; height:25px; display:flex; align-items:center; justify-content:center; font-weight:700;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 16px; margin-bottom:13px; box-shadow:0 1px 4px rgba(0,0,0,.04);}
+  .card.approved{border-left:5px solid var(--ok);}
+  .card.published{border-left:5px solid var(--pub);}
+  .card.changes{border-left:5px solid var(--warn); background:#fff8ee;}
+  .meta{display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-bottom:9px;}
+  .badge{font-size:11px; padding:3px 9px; border-radius:12px; font-weight:700;}
+  .b-threads{background:#1a1a1a; color:#fff;}
+  .b-fb{background:#3b5998; color:#fff;}
+  .b-bio{background:var(--gold); color:#5c4a00;}
+  .b-hook{background:#e8f4ec; color:#2e7d4f;}
+  .b-stance{background:#fdeaea; color:#b0453c;}
+  .b-bridge{background:#eaf0fb; color:#3d5fa0;}
+  .meta .when{font-size:11.5px; color:var(--muted); margin-left:auto;}
+  .content{font-size:14.5px; line-height:1.85; white-space:pre-wrap; padding:2px;}
+  .actions{display:flex; gap:7px; margin-top:12px; flex-wrap:wrap;}
+  .abtn{border:none; border-radius:8px; padding:8px 13px; font-size:12.5px; cursor:pointer; font-weight:600;}
+  .a-copy{background:#f1ede0; color:#6b6349;}
+  .a-ok{background:#e8f4ec; color:#2e7d4f;}
+  .card.approved .a-ok{background:var(--ok); color:#fff;}
+  .a-talk{background:#fff3e0; color:#b26a00;}
+  .card.talking .a-talk{background:var(--warn); color:#fff;}
+  .a-pub{background:#eaf0fb; color:#3d5fa0;}
+  .card.published .a-pub{background:var(--pub); color:#fff;}
+  .a-go{background:#1a1a1a; color:#fff;}
+  /* 溝通串 */
+  .thread{display:none; margin-top:12px; border-top:2px dashed var(--line); padding-top:10px;}
+  .card.talking .thread{display:block;}
+  .thread h4{font-size:12.5px; color:var(--muted); margin-bottom:8px;}
+  .msg{border-radius:10px; padding:9px 12px; margin-bottom:7px; font-size:13.5px; line-height:1.7; white-space:pre-wrap; max-width:92%;}
+  .msg.tony{background:#fdf3d0; margin-left:auto; border:1px solid #eedfa0;}
+  .msg.claude{background:#eef3fb; border:1px solid #d8e4f5;}
+  .msg .who{font-size:11px; color:var(--muted); font-weight:700; display:block; margin-bottom:3px;}
+  .msg.pending{opacity:.65;}
+  .thread textarea{width:100%; min-height:90px; border:2px solid var(--warn); border-radius:10px; padding:10px 12px; font-size:14px; line-height:1.7; font-family:inherit; resize:vertical; background:#fffdf8; margin-top:4px;}
+  .thread .hint{font-size:11.5px; color:var(--muted); margin:5px 0;}
+  /* 數據回報 */
+  .metrics{display:none; margin-top:12px; border-top:2px dashed var(--line); padding-top:10px;}
+  .card.published .metrics{display:block;}
+  .metrics h4{font-size:12.5px; color:var(--pub); margin-bottom:8px; font-weight:700;}
+  .metrics .mrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .metrics input{width:80px; border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px;}
+  .metrics label{font-size:12px; color:var(--muted);}
+  .metrics .sent{font-size:12px; color:var(--ok); font-weight:700;}
+  .day-head{font-size:13.5px; font-weight:700; margin:18px 0 9px; color:#6b6349;}
+  .day-head span{background:var(--gold); border-radius:8px; padding:2px 10px; margin-right:8px;}
+  footer{position:fixed; bottom:0; left:0; right:0; background:#fffdf5; border-top:2px solid var(--gold); padding:10px 16px; display:flex; gap:10px; align-items:center; justify-content:center; box-shadow:0 -2px 12px rgba(0,0,0,.08); flex-wrap:wrap;}
+  .a-export{background:var(--gold); color:#5c4a00; font-size:13.5px; padding:10px 20px;}
+  .a-reset{background:#f1ede0; color:#999; font-size:11.5px;}
+  footer .tip{font-size:11.5px; color:var(--muted); width:100%; text-align:center;}
+  .toast{position:fixed; top:76px; left:50%; transform:translateX(-50%); background:#2b2b2b; color:#fff; border-radius:24px; padding:11px 24px; font-size:13.5px; opacity:0; transition:.3s; z-index:99; pointer-events:none; max-width:92%; text-align:center;}
+  .toast.show{opacity:1;}
+  .empty{text-align:center; color:var(--muted); padding:30px; font-size:14px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🛡️ 極光盾 · 社群發文中心 <span style="font-size:12px;color:var(--muted)">W28（7/7–7/13）v3</span></h1>
+  <div class="stats">
+    <div class="stat pending">待審 <b id="st-pending">0</b></div>
+    <div class="stat approved">已通過 <b id="st-approved">0</b></div>
+    <div class="stat published">已發佈 <b id="st-published">0</b></div>
+    <div class="stat">討論中 <b id="st-changes" style="color:var(--warn)">0</b></div>
+  </div>
+  <div class="filters" id="filters">
+    <button class="fbtn active" data-f="today">📌 今日</button>
+    <button class="fbtn" data-f="all">整週</button>
+    <button class="fbtn" data-f="pending">待審</button>
+    <button class="fbtn" data-f="changes">討論中</button>
+    <button class="fbtn" data-f="approved">已通過</button>
+    <button class="fbtn" data-f="published">已發佈</button>
+  </div>
+</header>
+<main>
+  <div class="strategy">
+    <h2>⚔️ 本週策略（W28 · 起步第一週）</h2>
+    <div class="grid">
+      <div class="cell"><b>目標</b><br>讓演算法重新認識帳號＋給人「追蹤理由」。零賣貨、零連結，衝回覆率與轉發。</div>
+      <div class="cell"><b>定位</b><br>不販賣恐懼的清醒陪伴者——立場尖、語氣暖，「我們」視角。</div>
+      <div class="cell"><b>火力</b><br>敏感體質安定線（母文B）＋品牌立場（母文A）。Threads 11＋FB 2，IG 暫緩。</div>
+      <div class="cell"><b>本週 KPI</b><br>回覆率 >1%（基準 0.03%）、新粉 >30、發後 1hr 內回留言。</div>
+    </div>
+  </div>
+  <div id="today-banner"></div>
+  <div id="list"></div>
+</main>
+<footer>
+  <button class="abtn a-export" onclick="exportStatus()">📤 送出審核結果</button>
+  <button class="abtn a-reset" onclick="resetAll()">重置狀態</button>
+  <div class="tip">送出後 Claude 自動處理，結果用 LINE 通知你｜💬 討論和 📊 數據送出後，重新整理頁面看 Claude 的回覆</div>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const RESULT_ENDPOINT = "https://webhook.site/4ada2507-9c90-4c54-b3d1-22ef003b36ae";
+// thread: 溝通紀錄（Claude 處理後會把對話寫回這裡並重新部署）
+const POSTS = [
+ {id:"BIO", platform:"bio", layer:"", day:"", when:"發文前先換", title:"Bio 改寫", thread:[],
+  text:"不嚇你的身心靈品牌｜敏感體質的日常照顧\n把淨化變成生活裡的小儀式，不神化、不承諾、慢慢教\n🔗 seethelight.shop"},
+ {id:"T1", platform:"threads", layer:"hook", day:"7/6", when:"7/6（日）晚上", thread:[],
+  text:"你不是想太多，你只是接收得比別人多"},
+ {id:"T2", platform:"threads", layer:"hook", day:"7/7", when:"7/7（二）晚上", thread:[],
+  text:"POV：同事在旁邊嘆氣一個下午，你比他還累。你也會不小心接收別人的情緒嗎？"},
+ {id:"T3", platform:"threads", layer:"stance", day:"7/8", when:"7/8（三）中午", thread:[],
+  text:"這個圈子太習慣嚇人了，磁場髒了、卡到了、不處理會更糟，我們開品牌到現在只堅持一件事，不用恐懼賣東西，你沒有那麼脆弱，你只是需要一個把自己整理回來的方式"},
+ {id:"T4", platform:"threads", layer:"hook", day:"7/8", when:"7/8（三）晚上", thread:[],
+  text:"高敏人的日常：進一個房間就知道剛剛有人吵架，電話還沒接就知道是壞消息，朋友說「我沒事」你聽到的是「我很有事」。準確率高到很累，對吧"},
+ {id:"T5", platform:"threads", layer:"stance", day:"7/9", when:"7/9（四）中午", thread:[],
+  text:"有客人問我們，產品是不是要一直用才有效，我們的答案是不用，狀態好的時候你根本不需要想起我們，需要的時候它在，這樣就好，比起讓你離不開，我們更想看你自己站得穩"},
+ {id:"FB-A", platform:"fb", layer:"stance", day:"7/9", when:"7/9（四）晚上", title:"母文 A：「不用也沒關係」", thread:[],
+  text:"前陣子有客人私訊問我們：「你們的產品，是不是要一直用才有效？」\n\n我們的回答可能跟這個圈子的習慣不太一樣：不用。\n\n狀態好的時候，你根本不需要想起我們。淨化包也好、噴霧也好，它們是工具，不是依賴。就像你心情好的時候不會特別想泡熱水澡，但累壞的那天，一缸熱水就是救贖——工具的價值在「你需要的時候它在」，不在「讓你離不開」。\n\n說真的，這個行業太習慣用另一種方式做生意了：先告訴你磁場髒了、卡到東西了、不處理會更糟，然後遞上解藥。恐懼是很好賣的，我們知道。\n\n但我們從開品牌的第一天就決定不走這條路。因為我們自己就是敏感體質，太清楚那種「被嚇到不敢不買」的感覺有多糟。\n\n你沒有那麼脆弱。你只是需要一個把自己整理回來的方式，而那個方式，應該由你自己選。\n\n需要的時候，我們在。不需要的時候，替你開心。"},
+ {id:"T6", platform:"threads", layer:"hook", day:"7/10", when:"7/10（五）中午", thread:[],
+  text:"休息了還是累的 3 個真相：①你缺的不是睡眠是切換 ②你帶回家的不只疲憊還有一整天吸到的情緒 ③躺著滑手機想明天的事，是換姿勢繼續上班。中了幾個？"},
+ {id:"T7", platform:"threads", layer:"bridge", day:"7/10", when:"7/10（五）晚上", thread:[],
+  text:"下班回家第一件事你會做什麼？我們的客人最多人回答：先洗澡，把今天沖掉。你們呢"},
+ {id:"T8", platform:"threads", layer:"bridge", day:"7/11", when:"7/11（六）中午", thread:[],
+  text:"很多客人說，把泡澡變成睡前儀式之後，好像比較能把「今天」留在浴室裡，我們自己也是這樣用的，形式不重要，重要的是你的一天值得一個好好的結尾"},
+ {id:"FB-B", platform:"fb", layer:"hook", day:"7/11", when:"7/11（六）晚上", title:"母文 B：「為什麼休息了還是累」", thread:[],
+  text:"「我週末都在睡覺，為什麼星期一還是累？」\n\n如果你也這樣，先說結論：你可能不是缺睡眠，是缺「切換」。\n\n尤其是敏感體質的人，累的來源常常不是身體，是這三個：\n\n一、你整天都在接收。同事的低氣壓、客戶的情緒、捷運上陌生人的煩躁——你的接收器比別人靈敏，別人下班只帶回一個疲憊的身體，你帶回來一整天吸到的情緒。\n\n二、你的環境沒有換頻。工作的桌子、追劇的沙發、睡覺的床，如果你的一天在這三個點之間循環，空間的感覺是連在一起的，身體會分不清「現在可以放鬆了嗎」。\n\n三、你沒有「結束今天」的儀式。睡覺不等於結束，躺在床上滑手機想著明天的會議，那不是休息，是換個姿勢繼續上班。\n\n所以真正有用的方向，不是睡更多，是幫一天做一個「收尾動作」——可能是洗澡的時候認真感覺水沖過去、可能是睡前把房間窗戶開五分鐘、可能是一小段只屬於你的安靜。\n\n很多客人跟我們說，他們把泡澡變成睡前儀式之後，好像比較能把「今天」留在浴室裡。我們自己也是這樣用的。\n\n形式不重要，重要的是：你的一天，值得一個好好的結尾。"},
+ {id:"T9", platform:"threads", layer:"hook", day:"7/12", when:"7/12（日）中午", thread:[],
+  text:"敏感不是缺陷，是你的接收器比較好，學會關機就好了"},
+ {id:"T10", platform:"threads", layer:"stance", day:"7/12", when:"7/12（日）晚上", thread:[],
+  text:"我們不會跟你說不買會怎樣，因為不會怎樣，你本來就好好的，我們只是教你在需要的時候，怎麼把自己照顧回來"},
+ {id:"T11", platform:"threads", layer:"hook", day:"7/13", when:"7/13（一）中午", thread:[],
+  text:"星期一的你：門還沒進辦公室，光看大家的表情就知道今天氣氛不對。高敏人的雷達沒有休假日"}
+];
+const LAYER = {hook:["b-hook","🪝 鉤子"], stance:["b-stance","🛡️ 立場"], bridge:["b-bridge","🌉 承接"]};
+const KEY = "aurora-w28-v3";
+let MEM = {};
+function lsGet(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ return MEM; } }
+function lsSet(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(e){ MEM = v; } }
+let state = lsGet();
+let filter = "today";
+
+function save(){ lsSet(state); }
+function getS(id){ return state[id] || {status:"pending", pendingMsgs:[], metricsSent:false}; }
+function setS(id, patch){ state[id] = Object.assign(getS(id), patch); save(); }
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2600); }
+function todayStr(){ const d=new Date(); return (d.getMonth()+1)+"/"+d.getDate(); }
+function esc(s){ return s.replace(/</g,"&lt;"); }
+function sendToClaude(payload, okMsg){
+  return fetch(RESULT_ENDPOINT, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(payload)})
+    .then(()=>toast(okMsg))
+    .catch(()=>{
+      const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "W28審核結果.json";
+      a.click();
+      toast("網路傳送失敗，已改下載檔案（Claude 會偵測下載資料夾）");
+    });
+}
+function render(){
+  const list = document.getElementById("list");
+  const banner = document.getElementById("today-banner");
+  list.innerHTML = ""; banner.innerHTML = "";
+  const today = todayStr();
+  let curDay = null, shown = 0;
+  const counts = {pending:0, approved:0, published:0, changes:0};
+  POSTS.forEach(p=>{ counts[getS(p.id).status]++; });
+  if(filter==="today"){
+    const todays = POSTS.filter(p=>p.day===today || (p.id==="BIO" && getS("BIO").status==="pending"));
+    banner.innerHTML = todays.length
+      ? `<div class="today-banner"><span class="n">${todays.length}</span> 今天（${today}）：${todays.map(p=>p.id).join("、")} —— 審核 → 通過 → 去發文 → 標已發佈 → 回報數據</div>`
+      : `<div class="today-banner">今天（${today}）沒有排程任務 🎉 可切「整週」預先審核</div>`;
+  }
+  POSTS.forEach(p=>{
+    const s = getS(p.id);
+    const visible = filter==="all" || (filter==="today" && (p.day===today || (p.id==="BIO"&&s.status==="pending"))) || (filter===s.status);
+    if(!visible) return;
+    shown++;
+    if(p.day && p.day!==curDay && filter==="all"){
+      curDay = p.day;
+      const dh = document.createElement("div");
+      dh.className="day-head"; dh.innerHTML=`<span>${p.day}</span>`;
+      list.appendChild(dh);
+    }
+    const card = document.createElement("div");
+    card.id = "card-"+p.id;
+    card.className = "card " + (s.status==="changes"?"changes":s.status==="approved"?"approved":s.status==="published"?"published":"");
+    const pb = p.platform==="threads" ? '<span class="badge b-threads">Threads</span>' : p.platform==="fb" ? '<span class="badge b-fb">Facebook</span>' : '<span class="badge b-bio">Bio</span>';
+    const lb = p.layer && LAYER[p.layer] ? `<span class="badge ${LAYER[p.layer][0]}">${LAYER[p.layer][1]}</span>` : "";
+    const title = p.title ? `<b style="font-size:13.5px">${p.title}</b>` : "";
+    const goBtn = p.platform==="threads"
+      ? `<button class="abtn a-go" onclick="goThreads('${p.id}')">🚀 去發文</button>`
+      : p.platform==="fb" ? `<button class="abtn a-go" onclick="copyText('${p.id}');window.open('https://www.facebook.com/','_blank')">🚀 複製＋開FB</button>` : "";
+    // 溝通串（正式紀錄 + 尚未被 Claude 收錄的暫存）
+    let threadHtml = "";
+    (p.thread||[]).forEach(m=>{
+      threadHtml += `<div class="msg ${m.who}"><span class="who">${m.who==="tony"?"👤 東泥":"🤖 Claude"}・${m.at||""}</span>${esc(m.text)}</div>`;
+    });
+    (s.pendingMsgs||[]).forEach(m=>{
+      threadHtml += `<div class="msg tony pending"><span class="who">👤 東泥・已送出，等 Claude 回覆</span>${esc(m)}</div>`;
+    });
+    const nThread = (p.thread||[]).length + (s.pendingMsgs||[]).length;
+    card.innerHTML = `
+      <div class="meta"><span class="badge" style="background:#f1ede0">${p.id}</span>${pb}${lb}${title}<span class="when">📅 ${p.when}</span></div>
+      <div class="content">${esc(p.text)}</div>
+      <div class="thread">
+        <h4>💬 這篇的溝通紀錄（改文案、給意見、問問題都寫這，Claude 回覆後會出現在這裡）</h4>
+        ${threadHtml || '<div class="hint">還沒有溝通紀錄</div>'}
+        <textarea id="ta-${p.id}" placeholder="改好的文案、你的意見、或想問的問題…"></textarea>
+        <div class="actions"><button class="abtn a-talk" style="background:var(--warn);color:#fff" onclick="sendComment('${p.id}')">📨 送給 Claude</button></div>
+      </div>
+      <div class="metrics">
+        <h4>📊 發文後數據回報（發佈滿 24hr 後填，進 Claude 學習迴圈）</h4>
+        <div class="mrow">
+          <label>瀏覽 <input type="number" id="m-views-${p.id}" min="0"></label>
+          <label>讚 <input type="number" id="m-likes-${p.id}" min="0"></label>
+          <label>留言 <input type="number" id="m-replies-${p.id}" min="0"></label>
+          <label>轉發 <input type="number" id="m-reposts-${p.id}" min="0"></label>
+          <button class="abtn a-pub" onclick="sendMetrics('${p.id}')">送出數據</button>
+          ${s.metricsSent ? '<span class="sent">✅ 已回報</span>' : ''}
+        </div>
+      </div>
+      <div class="actions">
+        <button class="abtn a-copy" onclick="copyText('${p.id}')">📋 複製</button>
+        <button class="abtn a-ok" onclick="setStatus('${p.id}','approved')">✅ 通過</button>
+        <button class="abtn a-talk" onclick="toggleTalk('${p.id}')">💬 討論${nThread?`(${nThread})`:""}</button>
+        <button class="abtn a-pub" onclick="setStatus('${p.id}','published')">📮 已發佈</button>
+        ${goBtn}
+      </div>`;
+    list.appendChild(card);
+  });
+  if(!shown) list.innerHTML = '<div class="empty">這個篩選條件下沒有項目</div>';
+  document.getElementById("st-pending").textContent = counts.pending;
+  document.getElementById("st-approved").textContent = counts.approved;
+  document.getElementById("st-published").textContent = counts.published;
+  document.getElementById("st-changes").textContent = counts.changes;
+}
+function findPost(id){ return POSTS.find(p=>p.id===id); }
+function copyText(id){
+  const txt = findPost(id).text;
+  try {
+    navigator.clipboard.writeText(txt).then(()=>toast("已複製 "+id)).catch(()=>fallbackCopy(txt));
+  } catch(e){ fallbackCopy(txt); }
+}
+function fallbackCopy(txt){
+  const ta = document.createElement("textarea");
+  ta.value = txt; document.body.appendChild(ta);
+  ta.select(); try{ document.execCommand("copy"); toast("已複製 📋"); }catch(e){ toast("此瀏覽器不支援複製，請長按文字手動複製"); }
+  document.body.removeChild(ta);
+}
+function setStatus(id, st){
+  const cur = getS(id);
+  setS(id, {status: cur.status===st ? "pending" : st});
+  render();
+}
+function toggleTalk(id){ document.getElementById("card-"+id).classList.toggle("talking"); }
+function sendComment(id){
+  const ta = document.getElementById("ta-"+id);
+  const val = ta.value.trim();
+  if(!val){ toast("輸入框是空的"); return; }
+  const s = getS(id);
+  sendToClaude({kind:"comment", week:"W28", id:id, text:val, at:new Date().toISOString()}, "已送給 Claude 💬 回覆後會出現在溝通紀錄（LINE 會通知你）");
+  s.pendingMsgs = (s.pendingMsgs||[]).concat([val]);
+  setS(id, {status:"changes", pendingMsgs:s.pendingMsgs});
+  ta.value = "";
+  render();
+  document.getElementById("card-"+id).classList.add("talking");
+}
+function sendMetrics(id){
+  const v = x => parseInt(document.getElementById("m-"+x+"-"+id).value||"0");
+  const data = {kind:"metrics", week:"W28", id:id, views:v("views"), likes:v("likes"), replies:v("replies"), reposts:v("reposts"), at:new Date().toISOString()};
+  if(data.views===0 && data.likes===0){ toast("至少填瀏覽或讚"); return; }
+  sendToClaude(data, "數據已送出 📊 已進入 Claude 學習迴圈");
+  setS(id, {metricsSent:true});
+  render();
+}
+function goThreads(id){
+  copyText(id);
+  window.open("https://www.threads.net/intent/post?text="+encodeURIComponent(findPost(id).text), "_blank");
+}
+function exportStatus(){
+  const data = {
+    kind:"review-result", week:"W28", exportedAt:new Date().toISOString(),
+    items: POSTS.map(p=>({id:p.id, status:getS(p.id).status, note:(getS(p.id).pendingMsgs||[]).join("\n")}))
+  };
+  sendToClaude(data, "已送出 📤 Claude 自動處理中，結果會用 LINE 通知你");
+}
+function resetAll(){ if(confirm("確定重置本機審核狀態？（溝通紀錄不會消失）")){ state={}; save(); render(); } }
+document.getElementById("filters").addEventListener("click", e=>{
+  if(e.target.classList.contains("fbtn")){
+    document.querySelectorAll(".fbtn").forEach(b=>b.classList.remove("active"));
+    e.target.classList.add("active");
+    filter = e.target.dataset.f;
+    try{ render(); }catch(err){ document.getElementById("list").innerHTML = '<div class="empty">⚠️ 頁面錯誤：'+err.message+'<br>請截圖給 Claude</div>'; }
+  }
+});
+try{ render(); }catch(err){
+  document.getElementById("list").innerHTML = '<div class="empty">⚠️ 頁面初始化錯誤：'+err.message+'<br>請截圖給 Claude</div>';
+}
+</script>
+</body>
+</html>
