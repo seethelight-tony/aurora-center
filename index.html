@@ -125,10 +125,16 @@
 const RESULT_ENDPOINT = "https://webhook.site/4ada2507-9c90-4c54-b3d1-22ef003b36ae";
 // thread: 溝通紀錄（Claude 處理後會把對話寫回這裡並重新部署）
 const POSTS = [
- {id:"BIO", platform:"bio", layer:"", day:"", when:"發文前先換", title:"Bio 改寫", thread:[],
-  text:"不嚇你的身心靈品牌｜敏感體質的日常照顧\n把淨化變成生活裡的小儀式，不神化、不承諾、慢慢教\n🔗 seethelight.shop"},
- {id:"T1", platform:"threads", layer:"hook", day:"7/6", when:"7/6（日）晚上", thread:[],
-  text:"你不是想太多，你只是接收得比別人多"},
+ {id:"BIO", platform:"bio", layer:"", day:"", when:"發文前先換", title:"Bio 改寫（v2 依東泥方向）", thread:[
+   {who:"tony", at:"7/6 15:12", text:"我主張從舊的去改\n我們主張「照顧好自己為出發點」\n讓自己先穩起來，再強起來\n各種產品及儀式協助高敏感人好好生活\nseethelight.shop"},
+   {who:"claude", at:"7/6 15:20", text:"採用你的方向，文案已更新（見上方）。你的「先穩起來，再強起來」比舊版順序更好——高敏感受眾要先安穩才談強大，心理節奏是對的。\n\n一個專業備忘：原提案的「不嚇你的身心靈品牌」是對競品最強的差異化直球，先用你這版跑兩週，數據出來後可以 A/B 測試看哪版帶來的追蹤轉換高。"}
+  ],
+  text:"我們主張「照顧好自己為出發點」\n讓自己先穩起來，再強起來\n各種產品及儀式協助高敏感人好好生活\n🔗 seethelight.shop"},
+ {id:"T1", platform:"threads", layer:"hook", day:"7/6", when:"7/6（日）晚上", thread:[
+   {who:"tony", at:"7/6 15:08", text:"鉤子型文案不可沒頭沒尾的句子表達   會不明白要說什麼"},
+   {who:"claude", at:"7/6 15:20", text:"同意——品牌帳號面對的是冷受眾，需要「進入點」。已重寫成「情境開頭 → 翻轉 → 問句收尾」三段結構（見上方新文案），問句收尾同時衝回覆率（Threads 最重的信號）。\n\n補充：一句話金句型不是不能用，是要等粉絲對品牌熟了之後——先養認知，再玩留白。"}
+  ],
+  text:"又被說「你想太多」了嗎？其實你可能不是想太多，是接收得比別人多——別人聽到一句話，你聽到的是語氣、表情、和沒說出口的部分。高敏人的你，中了嗎？"},
  {id:"T2", platform:"threads", layer:"hook", day:"7/7", when:"7/7（二）晚上", thread:[],
   text:"POV：同事在旁邊嘆氣一個下午，你比他還累。你也會不小心接收別人的情緒嗎？"},
  {id:"T3", platform:"threads", layer:"stance", day:"7/8", when:"7/8（三）中午", thread:[],
