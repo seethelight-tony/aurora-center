@@ -220,6 +220,10 @@ function render(){
     const goBtn = p.platform==="threads"
       ? `<button class="abtn a-go" onclick="goThreads('${p.id}')">🚀 去發文</button>`
       : p.platform==="fb" ? `<button class="abtn a-go" onclick="copyText('${p.id}');window.open('https://www.facebook.com/','_blank')">🚀 複製＋開FB</button>` : "";
+    let sugTime = "";
+    if(p.when.includes("中午")) sugTime = "12:30";
+    else if(p.when.includes("晚上")) sugTime = p.platform==="fb" ? "21:00" : "21:30";
+    const timeBadge = sugTime ? `<span class="badge" style="background:#2b2b2b;color:#e6ca5c">⏰ 建議 ${sugTime} 發佈</span>` : "";
     // 溝通串（正式紀錄 + 尚未被 Claude 收錄的暫存）
     let threadHtml = "";
     (p.thread||[]).forEach(m=>{
@@ -230,7 +234,7 @@ function render(){
     });
     const nThread = (p.thread||[]).length + (s.pendingMsgs||[]).length;
     card.innerHTML = `
-      <div class="meta"><span class="badge" style="background:#f1ede0">${p.id}</span>${pb}${lb}${title}<span class="when">📅 ${p.when}</span></div>
+      <div class="meta"><span class="badge" style="background:#f1ede0">${p.id}</span>${pb}${lb}${timeBadge}${title}<span class="when">📅 ${p.when}</span></div>
       <div class="content">${esc(p.text)}</div>
       <div class="thread">
         <h4>💬 這篇的溝通紀錄（改文案、給意見、問問題都寫這，Claude 回覆後會出現在這裡）</h4>
