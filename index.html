@@ -100,6 +100,7 @@
     <button class="fbtn" data-f="approved">已通過</button>
     <button class="fbtn" data-f="published">已發佈</button>
   </div>
+  <div style="margin-top:10px;"><button class="abtn" style="background:#2b2b2b;color:var(--gold);" onclick="toggleAdhoc()">➕ 臨時發文</button></div>
 </header>
 <main>
   <div class="strategy">
@@ -112,6 +113,22 @@
     </div>
   </div>
   <div id="today-banner"></div>
+  <div id="adhoc-form" style="display:none; background:#fff; border:2px solid var(--gold-dark); border-radius:14px; padding:16px; margin-bottom:14px;">
+    <h4 style="font-size:14px; color:var(--gold-dark); margin-bottom:10px;">➕ 臨時發文（你寫內容 → 送 Claude 法規審核＋優化 → 回覆在卡片討論串）</h4>
+    <div style="margin-bottom:8px;">
+      <label style="font-size:13px;">平台：
+        <select id="adhoc-platform" style="padding:6px 10px; border:1px solid var(--line); border-radius:8px; font-family:inherit;">
+          <option value="threads">Threads</option>
+          <option value="fb">Facebook</option>
+        </select>
+      </label>
+    </div>
+    <textarea id="adhoc-text" style="width:100%; min-height:120px; border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:14px; line-height:1.7; font-family:inherit; resize:vertical;" placeholder="想發的內容寫這裡…"></textarea>
+    <div class="actions">
+      <button class="abtn a-export" onclick="submitAdhoc()">📨 建立＋送 Claude 審核</button>
+      <button class="abtn a-cancel" style="background:#eee;color:#888;" onclick="toggleAdhoc()">取消</button>
+    </div>
+  </div>
   <div id="list"></div>
 </main>
 <footer>
@@ -125,7 +142,7 @@
 const RESULT_ENDPOINT = "https://webhook.site/4ada2507-9c90-4c54-b3d1-22ef003b36ae";
 // thread: 溝通紀錄（Claude 處理後會把對話寫回這裡並重新部署）
 const POSTS = [
- {id:"BIO", platform:"bio", layer:"", day:"", when:"發文前先換", title:"Bio 改寫（v2 依東泥方向）", thread:[
+ {id:"BIO", platform:"bio", layer:"", day:"", when:"已完成（7/6）", title:"Bio 改寫（v2 依東泥方向）", done:true, thread:[
    {who:"tony", at:"7/6 15:12", text:"我主張從舊的去改\n我們主張「照顧好自己為出發點」\n讓自己先穩起來，再強起來\n各種產品及儀式協助高敏感人好好生活\nseethelight.shop"},
    {who:"claude", at:"7/6 15:20", text:"採用你的方向，文案已更新（見上方）。你的「先穩起來，再強起來」比舊版順序更好——高敏感受眾要先安穩才談強大，心理節奏是對的。\n\n一個專業備忘：原提案的「不嚇你的身心靈品牌」是對競品最強的差異化直球，先用你這版跑兩週，數據出來後可以 A/B 測試看哪版帶來的追蹤轉換高。"}
   ],
@@ -169,7 +186,7 @@ let state = lsGet();
 let filter = "today";
 
 function save(){ lsSet(state); }
-function getS(id){ return state[id] || {status:"pending", pendingMsgs:[], metricsSent:false}; }
+function getS(id){ if(state[id]) return state[id]; const p = POSTS.find(x=>x.id===id); return {status:(p&&p.done)?"published":"pending", pendingMsgs:[], metricsSent:false}; }
 function setS(id, patch){ state[id] = Object.assign(getS(id), patch); save(); }
 function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2600); }
 function todayStr(){ const d=new Date(); return (d.getMonth()+1)+"/"+d.getDate(); }
@@ -191,16 +208,17 @@ function render(){
   const banner = document.getElementById("today-banner");
   list.innerHTML = ""; banner.innerHTML = "";
   const today = todayStr();
+  const ALL = POSTS.concat((state.__adhoc||[]).filter(a=>!POSTS.some(p=>p.id===a.id)).map(a=>({id:a.id, platform:a.platform, layer:"", day:a.day, when:a.when, thread:[], text:a.text, adhoc:true})));
   let curDay = null, shown = 0;
   const counts = {pending:0, approved:0, published:0, changes:0};
-  POSTS.forEach(p=>{ counts[getS(p.id).status]++; });
+  ALL.forEach(p=>{ counts[getS(p.id).status]++; });
   if(filter==="today"){
-    const todays = POSTS.filter(p=>p.day===today || (p.id==="BIO" && getS("BIO").status==="pending"));
+    const todays = ALL.filter(p=>p.day===today || (p.id==="BIO" && getS("BIO").status==="pending"));
     banner.innerHTML = todays.length
       ? `<div class="today-banner"><span class="n">${todays.length}</span> 今天（${today}）：${todays.map(p=>p.id).join("、")} —— 審核 → 通過 → 去發文 → 標已發佈 → 回報數據</div>`
       : `<div class="today-banner">今天（${today}）沒有排程任務 🎉 可切「整週」預先審核</div>`;
   }
-  POSTS.forEach(p=>{
+  ALL.forEach(p=>{
     const s = getS(p.id);
     const visible = filter==="all" || (filter==="today" && (p.day===today || (p.id==="BIO"&&s.status==="pending"))) || (filter===s.status);
     if(!visible) return;
@@ -234,7 +252,7 @@ function render(){
     });
     const nThread = (p.thread||[]).length + (s.pendingMsgs||[]).length;
     card.innerHTML = `
-      <div class="meta"><span class="badge" style="background:#f1ede0">${p.id}</span>${pb}${lb}${timeBadge}${title}<span class="when">📅 ${p.when}</span></div>
+      <div class="meta"><span class="badge" style="background:#f1ede0">${p.id}</span>${pb}${lb}${p.adhoc?'<span class="badge" style="background:#fdeaea;color:#b0453c">⚡ 臨時</span>':''}${timeBadge}${title}<span class="when">📅 ${p.when}</span></div>
       <div class="content">${esc(p.text)}</div>
       <div class="thread">
         <h4>💬 這篇的溝通紀錄（改文案、給意見、問問題都寫這，Claude 回覆後會出現在這裡）</h4>
@@ -268,7 +286,7 @@ function render(){
   document.getElementById("st-published").textContent = counts.published;
   document.getElementById("st-changes").textContent = counts.changes;
 }
-function findPost(id){ return POSTS.find(p=>p.id===id); }
+function findPost(id){ return POSTS.find(p=>p.id===id) || (state.__adhoc||[]).find(p=>p.id===id); }
 function copyText(id){
   const txt = findPost(id).text;
   try {
@@ -310,6 +328,23 @@ function sendMetrics(id){
 function goThreads(id){
   copyText(id);
   window.open("https://www.threads.net/intent/post?text="+encodeURIComponent(findPost(id).text), "_blank");
+}
+function toggleAdhoc(){
+  const f = document.getElementById("adhoc-form");
+  f.style.display = (f.style.display==="none" || !f.style.display) ? "block" : "none";
+}
+function submitAdhoc(){
+  const txt = document.getElementById("adhoc-text").value.trim();
+  const plat = document.getElementById("adhoc-platform").value;
+  if(!txt){ toast("內容是空的"); return; }
+  const id = "AD-" + Date.now().toString().slice(-6);
+  const post = {id:id, platform:plat, day:todayStr(), when:todayStr()+"（臨時）", text:txt, at:new Date().toISOString()};
+  state.__adhoc = (state.__adhoc||[]).concat([post]);
+  save();
+  sendToClaude({kind:"adhoc", week:"W28", id:id, platform:plat, text:txt, at:post.at}, "已建立 "+id+"，送 Claude 審核中（結果 LINE 通知）");
+  document.getElementById("adhoc-text").value = "";
+  toggleAdhoc();
+  render();
 }
 function exportStatus(){
   const data = {
