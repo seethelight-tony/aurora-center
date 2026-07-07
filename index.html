@@ -85,7 +85,7 @@
 </head>
 <body>
 <header>
-  <h1>🛡️ 極光盾 · 社群發文中心 <span style="font-size:12px;color:var(--muted)">W28（7/7–7/13）v3</span></h1>
+  <h1>🛡️ 極光盾 · 社群發文中心 <span style="font-size:12px;color:var(--muted)">W28（7/7–7/13）v4 即時同步</span></h1>
   <div class="stats">
     <div class="stat pending">待審 <b id="st-pending">0</b></div>
     <div class="stat approved">已通過 <b id="st-approved">0</b></div>
@@ -132,9 +132,7 @@
   <div id="list"></div>
 </main>
 <footer>
-  <button class="abtn a-export" onclick="exportStatus()">📤 送出審核結果</button>
-  <button class="abtn a-reset" onclick="resetAll()">重置狀態</button>
-  <div class="tip">送出後 Claude 自動處理，結果用 LINE 通知你｜💬 討論和 📊 數據送出後，重新整理頁面看 Claude 的回覆</div>
+  <div class="tip">每個按鈕按下即自動同步給 Claude 處理（通過/已發佈/討論/數據都是）｜Claude 回覆會出現在卡片討論串，重新整理可見｜結果摘要用 LINE 通知</div>
 </footer>
 <div class="toast" id="toast"></div>
 
@@ -305,7 +303,11 @@ function fallbackCopy(txt){
 }
 function setStatus(id, st){
   const cur = getS(id);
-  setS(id, {status: cur.status===st ? "pending" : st});
+  const next = cur.status===st ? "pending" : st;
+  setS(id, {status: next});
+  sendToClaude({kind:"status", week:"W28", id:id, status:next, at:new Date().toISOString()},
+    next==="approved" ? "✅ "+id+" 已通過（已同步 Claude）" :
+    next==="published" ? "📮 "+id+" 已發佈（已同步 Claude）" : id+" 已改回待審（已同步）");
   render();
 }
 function toggleTalk(id){ document.getElementById("card-"+id).classList.toggle("talking"); }
@@ -350,14 +352,6 @@ function submitAdhoc(){
   toggleAdhoc();
   render();
 }
-function exportStatus(){
-  const data = {
-    kind:"review-result", week:"W28", exportedAt:new Date().toISOString(),
-    items: POSTS.map(p=>({id:p.id, status:getS(p.id).status, note:(getS(p.id).pendingMsgs||[]).join("\n")}))
-  };
-  sendToClaude(data, "已送出 📤 Claude 自動處理中，結果會用 LINE 通知你");
-}
-function resetAll(){ if(confirm("確定重置本機審核狀態？（溝通紀錄不會消失）")){ state={}; save(); render(); } }
 document.getElementById("filters").addEventListener("click", e=>{
   if(e.target.classList.contains("fbtn")){
     document.querySelectorAll(".fbtn").forEach(b=>b.classList.remove("active"));
