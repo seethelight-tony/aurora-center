@@ -87,15 +87,14 @@
 <header>
   <h1>🛡️ 極光盾 · 社群發文中心 <span style="font-size:12px;color:var(--muted)">W28（7/7–7/13）v4 即時同步</span></h1>
   <div class="stats">
-    <div class="stat pending">待審 <b id="st-pending">0</b></div>
+    <div class="stat pending">待發 <b id="st-pending">0</b></div>
     <div class="stat approved">已通過 <b id="st-approved">0</b></div>
     <div class="stat published">已發佈 <b id="st-published">0</b></div>
     <div class="stat">討論中 <b id="st-changes" style="color:var(--warn)">0</b></div>
   </div>
   <div class="filters" id="filters">
-    <button class="fbtn active" data-f="today">📌 今日</button>
-    <button class="fbtn" data-f="all">整週</button>
-    <button class="fbtn" data-f="pending">待審</button>
+    <button class="fbtn active" data-f="all">整週</button>
+    <button class="fbtn" data-f="pending">待發</button>
     <button class="fbtn" data-f="changes">討論中</button>
     <button class="fbtn" data-f="approved">已通過</button>
     <button class="fbtn" data-f="published">已發佈</button>
@@ -188,7 +187,7 @@ let MEM = {};
 function lsGet(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ return MEM; } }
 function lsSet(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(e){ MEM = v; } }
 let state = lsGet();
-let filter = "today";
+let filter = "all";
 
 function save(){ lsSet(state); }
 function getS(id){ if(state[id]) return state[id]; const p = POSTS.find(x=>x.id===id); const baked = p&&p.metrics; return {status:(p&&p.done)?"published":"pending", pendingMsgs:[], metricsSent:!!baked, metrics:baked||null}; }
@@ -217,12 +216,6 @@ function render(){
   let curDay = null, shown = 0;
   const counts = {pending:0, approved:0, published:0, changes:0};
   ALL.forEach(p=>{ counts[getS(p.id).status]++; });
-  if(filter==="today"){
-    const todays = ALL.filter(p=>p.day===today);
-    banner.innerHTML = todays.length
-      ? `<div class="today-banner"><span class="n">${todays.length}</span> 今天（${today}）：${todays.map(p=>p.id).join("、")} —— 審核 → 通過 → 去發文 → 標已發佈 → 回報數據</div>`
-      : `<div class="today-banner">今天（${today}）沒有排程任務 🎉 可切「整週」預先審核</div>`;
-  }
   ALL.forEach(p=>{
     const s = getS(p.id);
     const archived = s.status==="published" && s.metricsSent===true;
