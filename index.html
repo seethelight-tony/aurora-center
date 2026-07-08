@@ -92,8 +92,7 @@
     <div class="stat">討論中 <b id="st-changes" style="color:var(--warn)">0</b></div>
   </div>
   <div class="filters" id="filters">
-    <button class="fbtn active" data-f="all">整週</button>
-    <button class="fbtn" data-f="pending">待發</button>
+    <button class="fbtn active" data-f="pending">待發</button>
     <button class="fbtn" data-f="changes">討論中</button>
     <button class="fbtn" data-f="published">已發佈</button>
     <button class="fbtn" data-f="archived">📦 歸檔</button>
@@ -185,7 +184,7 @@ let MEM = {};
 function lsGet(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ return MEM; } }
 function lsSet(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(e){ MEM = v; } }
 let state = lsGet();
-let filter = "all";
+let filter = "pending";
 
 function save(){ lsSet(state); }
 function getS(id){ if(state[id]) return state[id]; const p = POSTS.find(x=>x.id===id); const baked = p&&p.metrics; return {status:(p&&p.done)?"published":"pending", pendingMsgs:[], metricsSent:!!baked, metrics:baked||null}; }
@@ -223,7 +222,7 @@ function render(){
     else { visible = filter==="all" || (filter==="today" && p.day===today) || (filter===s.status); }
     if(!visible) return;
     shown++;
-    if(p.day && p.day!==curDay && filter==="all"){
+    if(p.day && p.day!==curDay && (filter==="pending"||filter==="all")){
       curDay = p.day;
       const dh = document.createElement("div");
       dh.className="day-head"; dh.innerHTML=`<span>${p.day}</span>`;
