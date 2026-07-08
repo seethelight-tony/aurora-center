@@ -133,7 +133,7 @@
   <div id="list"></div>
 </main>
 <footer>
-  <div class="tip">每個按鈕按下即自動同步 Claude ｜頁面每 30 秒自動更新（你打字時會暫停不干擾）｜已發佈+已回報數據的貼文自動收進「📦 歸檔」｜結果用 LINE 通知</div>
+  <div class="tip">按下任何按鈕（通過/已發佈/討論/數據）即同步 Claude，8 秒後自動抓回覆更新｜已發佈+已回報數據的貼文自動收進「📦 歸檔」（數據唯讀）｜結果用 LINE 通知</div>
 </footer>
 <div class="toast" id="toast"></div>
 
@@ -141,11 +141,6 @@
 const RESULT_ENDPOINT = "https://script.google.com/macros/s/AKfycbyCbZpxfOGk7GHPWygX2yQYvUM7VUFcdRsV68E6KBBkG5w1-qUpXhDoONlJq2nhQGFcvQ/exec";
 // thread: 溝通紀錄（Claude 處理後會把對話寫回這裡並重新部署）
 const POSTS = [
- {id:"BIO", platform:"bio", layer:"", day:"", when:"已完成（7/6）", title:"Bio 改寫（v2 依東泥方向）", done:true, thread:[
-   {who:"tony", at:"7/6 15:12", text:"我主張從舊的去改\n我們主張「照顧好自己為出發點」\n讓自己先穩起來，再強起來\n各種產品及儀式協助高敏感人好好生活\nseethelight.shop"},
-   {who:"claude", at:"7/6 15:20", text:"採用你的方向，文案已更新（見上方）。你的「先穩起來，再強起來」比舊版順序更好——高敏感受眾要先安穩才談強大，心理節奏是對的。\n\n一個專業備忘：原提案的「不嚇你的身心靈品牌」是對競品最強的差異化直球，先用你這版跑兩週，數據出來後可以 A/B 測試看哪版帶來的追蹤轉換高。"}
-  ],
-  text:"我們主張「照顧好自己為出發點」\n讓自己先穩起來，再強起來\n各種產品及儀式協助高敏感人好好生活\n🔗 seethelight.shop"},
  {id:"T1", platform:"threads", layer:"hook", day:"7/6", when:"✅ 已發佈（7/6 晚）", done:true, thread:[
    {who:"tony", at:"7/6 15:08", text:"鉤子型文案不可沒頭沒尾的句子表達   會不明白要說什麼"},
    {who:"claude", at:"7/6 15:20", text:"同意——品牌帳號面對的是冷受眾，需要「進入點」。已重寫成「情境開頭 → 翻轉 → 問句收尾」三段結構（見上方新文案），問句收尾同時衝回覆率（Threads 最重的信號）。\n\n補充：一句話金句型不是不能用，是要等粉絲對品牌熟了之後——先養認知，再玩留白。"}
@@ -221,7 +216,7 @@ function render(){
   const counts = {pending:0, approved:0, published:0, changes:0};
   ALL.forEach(p=>{ counts[getS(p.id).status]++; });
   if(filter==="today"){
-    const todays = ALL.filter(p=>p.day===today || (p.id==="BIO" && getS("BIO").status==="pending"));
+    const todays = ALL.filter(p=>p.day===today);
     banner.innerHTML = todays.length
       ? `<div class="today-banner"><span class="n">${todays.length}</span> 今天（${today}）：${todays.map(p=>p.id).join("、")} —— 審核 → 通過 → 去發文 → 標已發佈 → 回報數據</div>`
       : `<div class="today-banner">今天（${today}）沒有排程任務 🎉 可切「整週」預先審核</div>`;
@@ -232,7 +227,7 @@ function render(){
     let visible;
     if(filter==="archived"){ visible = archived; }
     else if(archived){ visible = false; }  // 已發佈+已回報數據 → 只在歸檔區
-    else { visible = filter==="all" || (filter==="today" && (p.day===today || (p.id==="BIO"&&s.status==="pending"))) || (filter===s.status); }
+    else { visible = filter==="all" || (filter==="today" && p.day===today) || (filter===s.status); }
     if(!visible) return;
     shown++;
     if(p.day && p.day!==curDay && filter==="all"){
@@ -273,14 +268,13 @@ function render(){
         <div class="actions"><button class="abtn a-talk" style="background:var(--warn);color:#fff" onclick="sendComment('${p.id}')">📨 送給 Claude</button></div>
       </div>
       <div class="metrics">
-        <h4>📊 發文後數據回報（發佈滿 24hr 後填，進 Claude 學習迴圈）</h4>
+        <h4>📊 發文後數據回報（發佈滿 24hr 後填，進 Claude 學習迴圈）${s.metricsSent?'｜🔒 已回報（唯讀）':''}</h4>
         <div class="mrow">
-          <label>瀏覽 <input type="number" id="m-views-${p.id}" min="0"></label>
-          <label>讚 <input type="number" id="m-likes-${p.id}" min="0"></label>
-          <label>留言 <input type="number" id="m-replies-${p.id}" min="0"></label>
-          <label>轉發 <input type="number" id="m-reposts-${p.id}" min="0"></label>
-          <button class="abtn a-pub" onclick="sendMetrics('${p.id}')">送出數據</button>
-          ${s.metricsSent ? '<span class="sent">✅ 已回報</span>' : ''}
+          <label>瀏覽 <input type="number" id="m-views-${p.id}" min="0" value="${(s.metrics&&s.metrics.views)||''}" ${s.metricsSent?'readonly':''}></label>
+          <label>讚 <input type="number" id="m-likes-${p.id}" min="0" value="${(s.metrics&&s.metrics.likes)||''}" ${s.metricsSent?'readonly':''}></label>
+          <label>留言 <input type="number" id="m-replies-${p.id}" min="0" value="${(s.metrics&&s.metrics.replies)||''}" ${s.metricsSent?'readonly':''}></label>
+          <label>轉發 <input type="number" id="m-reposts-${p.id}" min="0" value="${(s.metrics&&s.metrics.reposts)||''}" ${s.metricsSent?'readonly':''}></label>
+          ${s.metricsSent ? '<span class="sent">✅ 已回報</span>' : `<button class="abtn a-pub" onclick="sendMetrics('${p.id}')">送出數據</button>`}
         </div>
       </div>
       <div class="actions">
@@ -319,6 +313,7 @@ function setStatus(id, st){
     next==="approved" ? "✅ "+id+" 已通過（已同步 Claude）" :
     next==="published" ? "📮 "+id+" 已發佈（已同步 Claude）" : id+" 已改回待審（已同步）");
   render();
+  refreshAfterAction();
 }
 function toggleTalk(id){ document.getElementById("card-"+id).classList.toggle("talking"); }
 function sendComment(id){
@@ -326,19 +321,20 @@ function sendComment(id){
   const val = ta.value.trim();
   if(!val){ toast("輸入框是空的"); return; }
   const s = getS(id);
-  sendToClaude({kind:"comment", week:"W28", id:id, text:val, at:new Date().toISOString()}, "已送給 Claude 💬 回覆後會出現在溝通紀錄（LINE 會通知你）");
+  sendToClaude({kind:"comment", week:"W28", id:id, text:val, at:new Date().toISOString()}, "已送給 Claude 💬 回覆後會自動出現在溝通紀錄（LINE 也會通知你）");
   s.pendingMsgs = (s.pendingMsgs||[]).concat([val]);
   setS(id, {status:"changes", pendingMsgs:s.pendingMsgs});
   ta.value = "";
   render();
   document.getElementById("card-"+id).classList.add("talking");
+  refreshAfterAction();
 }
 function sendMetrics(id){
   const v = x => parseInt(document.getElementById("m-"+x+"-"+id).value||"0");
   const data = {kind:"metrics", week:"W28", id:id, views:v("views"), likes:v("likes"), replies:v("replies"), reposts:v("reposts"), at:new Date().toISOString()};
   if(data.views===0 && data.likes===0){ toast("至少填瀏覽或讚"); return; }
   sendToClaude(data, "數據已送出 📊 已進入 Claude 學習迴圈");
-  setS(id, {metricsSent:true});
+  setS(id, {metricsSent:true, metrics:{views:data.views, likes:data.likes, replies:data.replies, reposts:data.reposts}});
   render();
 }
 function goThreads(id){
@@ -374,23 +370,14 @@ try{ render(); }catch(err){
   document.getElementById("list").innerHTML = '<div class="empty">⚠️ 頁面初始化錯誤：'+err.message+'<br>請截圖給 Claude</div>';
 }
 
-// 自動刷新：每 30 秒抓 Claude 最新回覆／狀態；但你正在打字時絕不刷新（保護內容）
-function isTyping(){
-  const el = document.activeElement;
-  if(el && (el.tagName==="TEXTAREA" || el.tagName==="INPUT")) return true; // 游標在輸入框
-  const adhoc = document.getElementById("adhoc-form");
-  if(adhoc && adhoc.style.display==="block") return true; // 臨時發文表單開著
-  // 任一輸入框有未送出的文字
-  const boxes = document.querySelectorAll("textarea");
-  for(const b of boxes){ if(b.value && b.value.trim()) return true; }
-  return false;
+// 送出動作後 8 秒自動刷新一次，抓 Claude 剛回的內容（不做定時輪詢）
+function refreshAfterAction(){
+  setTimeout(function(){
+    const el = document.activeElement;
+    if(el && (el.tagName==="TEXTAREA" || el.tagName==="INPUT")) return; // 你又在打字就不刷
+    location.reload();
+  }, 8000);
 }
-let refreshPaused = false;
-setInterval(function(){
-  if(isTyping()){ refreshPaused = true; return; }
-  // 重新載入頁面 → 取得 Claude 重新部署後的最新內容（審核狀態存 localStorage 不會丟）
-  location.reload();
-}, 30000);
 </script>
 </body>
 </html>
