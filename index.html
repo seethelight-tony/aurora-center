@@ -88,7 +88,6 @@
   <h1>🛡️ 極光盾 · 社群發文中心 <span style="font-size:12px;color:var(--muted)">W28（7/7–7/13）v4 即時同步</span></h1>
   <div class="stats">
     <div class="stat pending">待發 <b id="st-pending">0</b></div>
-    <div class="stat approved">已通過 <b id="st-approved">0</b></div>
     <div class="stat published">已發佈 <b id="st-published">0</b></div>
     <div class="stat">討論中 <b id="st-changes" style="color:var(--warn)">0</b></div>
   </div>
@@ -96,7 +95,6 @@
     <button class="fbtn active" data-f="all">整週</button>
     <button class="fbtn" data-f="pending">待發</button>
     <button class="fbtn" data-f="changes">討論中</button>
-    <button class="fbtn" data-f="approved">已通過</button>
     <button class="fbtn" data-f="published">已發佈</button>
     <button class="fbtn" data-f="archived">📦 歸檔</button>
   </div>
@@ -274,7 +272,6 @@ function render(){
       </div>
       <div class="actions">
         <button class="abtn a-copy" onclick="copyText('${p.id}')">📋 複製</button>
-        <button class="abtn a-ok" onclick="setStatus('${p.id}','approved')">✅ 通過</button>
         <button class="abtn a-talk" onclick="toggleTalk('${p.id}')">💬 討論${nThread?`(${nThread})`:""}</button>
         <button class="abtn a-pub" onclick="setStatus('${p.id}','published')">📮 已發佈</button>
         ${goBtn}
@@ -283,7 +280,6 @@ function render(){
   });
   if(!shown) list.innerHTML = '<div class="empty">這個篩選條件下沒有項目</div>';
   document.getElementById("st-pending").textContent = counts.pending;
-  document.getElementById("st-approved").textContent = counts.approved;
   document.getElementById("st-published").textContent = counts.published;
   document.getElementById("st-changes").textContent = counts.changes;
 }
