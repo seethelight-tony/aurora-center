@@ -99,6 +99,7 @@
     <button class="fbtn" data-f="changes">討論中</button>
     <button class="fbtn" data-f="approved">已通過</button>
     <button class="fbtn" data-f="published">已發佈</button>
+    <button class="fbtn" data-f="archived">📦 歸檔</button>
   </div>
   <div style="margin-top:10px;"><button class="abtn" style="background:#2b2b2b;color:var(--gold);" onclick="toggleAdhoc()">➕ 臨時發文</button></div>
 </header>
@@ -132,7 +133,7 @@
   <div id="list"></div>
 </main>
 <footer>
-  <div class="tip">每個按鈕按下即自動同步給 Claude 處理（通過/已發佈/討論/數據都是）｜Claude 回覆會出現在卡片討論串，重新整理可見｜結果摘要用 LINE 通知</div>
+  <div class="tip">每個按鈕按下即自動同步 Claude ｜頁面每 30 秒自動更新（你打字時會暫停不干擾）｜已發佈+已回報數據的貼文自動收進「📦 歸檔」｜結果用 LINE 通知</div>
 </footer>
 <div class="toast" id="toast"></div>
 
@@ -227,7 +228,11 @@ function render(){
   }
   ALL.forEach(p=>{
     const s = getS(p.id);
-    const visible = filter==="all" || (filter==="today" && (p.day===today || (p.id==="BIO"&&s.status==="pending"))) || (filter===s.status);
+    const archived = s.status==="published" && s.metricsSent===true;
+    let visible;
+    if(filter==="archived"){ visible = archived; }
+    else if(archived){ visible = false; }  // 已發佈+已回報數據 → 只在歸檔區
+    else { visible = filter==="all" || (filter==="today" && (p.day===today || (p.id==="BIO"&&s.status==="pending"))) || (filter===s.status); }
     if(!visible) return;
     shown++;
     if(p.day && p.day!==curDay && filter==="all"){
@@ -368,6 +373,24 @@ document.getElementById("filters").addEventListener("click", e=>{
 try{ render(); }catch(err){
   document.getElementById("list").innerHTML = '<div class="empty">⚠️ 頁面初始化錯誤：'+err.message+'<br>請截圖給 Claude</div>';
 }
+
+// 自動刷新：每 30 秒抓 Claude 最新回覆／狀態；但你正在打字時絕不刷新（保護內容）
+function isTyping(){
+  const el = document.activeElement;
+  if(el && (el.tagName==="TEXTAREA" || el.tagName==="INPUT")) return true; // 游標在輸入框
+  const adhoc = document.getElementById("adhoc-form");
+  if(adhoc && adhoc.style.display==="block") return true; // 臨時發文表單開著
+  // 任一輸入框有未送出的文字
+  const boxes = document.querySelectorAll("textarea");
+  for(const b of boxes){ if(b.value && b.value.trim()) return true; }
+  return false;
+}
+let refreshPaused = false;
+setInterval(function(){
+  if(isTyping()){ refreshPaused = true; return; }
+  // 重新載入頁面 → 取得 Claude 重新部署後的最新內容（審核狀態存 localStorage 不會丟）
+  location.reload();
+}, 30000);
 </script>
 </body>
 </html>
