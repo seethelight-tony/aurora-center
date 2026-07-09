@@ -268,6 +268,7 @@ function render(){
           <label>讚 <input type="number" id="m-likes-${p.id}" min="0" value="${(s.metrics&&s.metrics.likes)||''}" ${s.metricsSent?'readonly':''}></label>
           <label>留言 <input type="number" id="m-replies-${p.id}" min="0" value="${(s.metrics&&s.metrics.replies)||''}" ${s.metricsSent?'readonly':''}></label>
           <label>轉發 <input type="number" id="m-reposts-${p.id}" min="0" value="${(s.metrics&&s.metrics.reposts)||''}" ${s.metricsSent?'readonly':''}></label>
+          <label>➕追蹤 <input type="number" id="m-follows-${p.id}" value="${(s.metrics&&s.metrics.follows!=null)?s.metrics.follows:''}" ${s.metricsSent?'readonly':''}></label>
           ${s.metricsSent ? '<span class="sent">✅ 已回報</span>' : `<button class="abtn a-pub" onclick="sendMetrics('${p.id}')">送出數據</button>`}
         </div>
       </div>
@@ -323,11 +324,12 @@ function sendComment(id){
 }
 function sendMetrics(id){
   const v = x => parseInt(document.getElementById("m-"+x+"-"+id).value||"0");
-  const data = {kind:"metrics", week:"W28", id:id, views:v("views"), likes:v("likes"), replies:v("replies"), reposts:v("reposts"), at:new Date().toISOString()};
+  const data = {kind:"metrics", week:"W28", id:id, views:v("views"), likes:v("likes"), replies:v("replies"), reposts:v("reposts"), follows:v("follows"), at:new Date().toISOString()};
   if(data.views===0 && data.likes===0){ toast("至少填瀏覽或讚"); return; }
   sendToClaude(data, "數據已送出 📊 已進入 Claude 學習迴圈");
-  setS(id, {metricsSent:true, metrics:{views:data.views, likes:data.likes, replies:data.replies, reposts:data.reposts}});
+  setS(id, {metricsSent:true, metrics:{views:data.views, likes:data.likes, replies:data.replies, reposts:data.reposts, follows:data.follows}});
   render();
+  refreshAfterAction();
 }
 function goThreads(id){
   copyText(id);
