@@ -85,7 +85,7 @@
 </head>
 <body>
 <header>
-  <h1>🛡️ 極光盾 · 社群發文中心 <span style="font-size:12px;color:var(--muted)">W28（7/7–7/13）v4 即時同步</span></h1>
+  <h1>🛡️ 極光盾 · 社群發文中心 <span style="font-size:12px;color:var(--muted)">W28（7/7–7/13）v5 跨機同步</span></h1>
   <div class="stats">
     <div class="stat pending">待發 <b id="st-pending">0</b></div>
     <div class="stat published">已發佈 <b id="st-published">0</b></div>
@@ -129,7 +129,7 @@
   <div id="list"></div>
 </main>
 <footer>
-  <div class="tip">按下任何按鈕（通過/已發佈/討論/數據）即同步 Claude，8 秒後自動抓回覆更新｜已發佈+已回報數據的貼文自動收進「📦 歸檔」（數據唯讀）｜結果用 LINE 通知</div>
+  <div class="tip">按下任何按鈕（通過/已發佈/討論/數據）即同步 Claude，8 秒後自動抓回覆更新｜狀態存雲端：家裡/公司哪台按的都一樣，開頁自動抓最新｜已發佈+已回報數據自動進「📦 歸檔」（不發的稿也在歸檔）｜結果用 LINE 通知</div>
 </footer>
 <div class="toast" id="toast"></div>
 
@@ -155,30 +155,33 @@ const POSTS = [
    {who:"claude", at:"7/8 12:55", text:"要，建議每篇掛 1 個「主題標籤」（Threads 發文框下方的「新增主題」，不是 # 井字）：\n\n① 一篇只能掛一個，挑最貼題的\n② 我們的主力主題輪替：高敏感／內耗／身心靈／能量／淨化儀式——跟著該篇內容選\n③ 好處：進入該主題的瀏覽流＋搜尋，冷啟動帳號多一條被看見的路；持續用同幾個主題，演算法會把帳號跟主題圈綁定\n④ 不要選太廣的（像「生活」），愈準愈好\n\n這篇 T3 建議掛：「身心靈」。已寫進 playbook 變成固定 SOP，之後每篇卡片我會直接標建議主題。"}
   ],
   text:"過去的身心靈圈，太習慣用嚇的：磁場髒了、卡到了、不處理會更糟，讓人愈聽愈害怕\n\n我們的品牌走到第 4 年，只堅持一件事：不用恐懼賣東西\n\n你沒有那麼脆弱，你只是需要一個把自己整理回來的方式"},
- {id:"T4", platform:"threads", layer:"hook", day:"7/8", when:"7/8（三）晚上", thread:[
+ {id:"T4", platform:"threads", layer:"hook", day:"7/8", when:"✅ 已發佈（7/9 順延，Tony 確認）", done:true, thread:[
    {who:"claude", at:"7/8 14:30", text:"改用「選擇題收尾」示範（回應 0 互動診斷）：原本「準確率高到很累，對吧」是要你點頭、不用打字。改成 A/B 選一個，打一個字母的門檻極低，回覆率通常 5-10 倍。\n\n這篇是本週的互動實驗：如果 A/B 收尾真的帶出留言，就寫進 playbook 變固定招；沒效我們再換。主題掛「高敏感」。"},
    {who:"tony", at:"7/9 10:06", text:"昨天 21:30 忘了發佈 怎麼辦?  後面的排程會影響到"},
    {who:"claude", at:"7/9 10:20", text:"完全不影響，別擔心——排程只是「建議時段」，不是死線。T4 這篇是無時效內容（高敏人日常），今天任何時段發都一樣有效。\n\n做法：今天中午 12:30 就發 T4（把它補上），今晚 21:30 照原本發 T5。等於整條往後順一天，一篇都不會少。\n\n唯一要避免的是「同一天硬塞兩篇趕進度」——那會稀釋觸及。一天一篇、順順發最好。而且 T4 是我們的互動實驗（A/B 選擇題），值得好好發、專心回留言，不要急。"}
   ],
   text:"高敏人的日常：進一個房間就知道剛剛有人吵架，電話還沒接就知道是壞消息，朋友說「我沒事」你聽到的是「我很有事」\n\n你是哪一種？\nA｜這根本是我的日常，準到很累\nB｜還好，我沒那麼敏感\n\n留 A 或 B 就好，想看看有多少同類"},
- {id:"T5", platform:"threads", layer:"stance", day:"7/9", when:"7/9（四）中午", thread:[],
+ {id:"T5", platform:"threads", layer:"stance", day:"7/9", when:"✅ 已發佈（7/9，Tony 確認）", done:true, thread:[],
   text:"有客人問我們，產品是不是要一直用才有效，我們的答案是不用，狀態好的時候你根本不需要想起我們，需要的時候它在，這樣就好，比起讓你離不開，我們更想看你自己站得穩"},
  {id:"FB-A", platform:"fb", layer:"stance", day:"7/9", when:"7/9（四）晚上", title:"母文 A：「不用也沒關係」", thread:[],
   text:"前陣子有客人私訊問我們：「你們的產品，是不是要一直用才有效？」\n\n我們的回答可能跟這個圈子的習慣不太一樣：不用。\n\n狀態好的時候，你根本不需要想起我們。淨化包也好、噴霧也好，它們是工具，不是依賴。就像你心情好的時候不會特別想泡熱水澡，但累壞的那天，一缸熱水就是救贖——工具的價值在「你需要的時候它在」，不在「讓你離不開」。\n\n說真的，這個行業太習慣用另一種方式做生意了：先告訴你磁場髒了、卡到東西了、不處理會更糟，然後遞上解藥。恐懼是很好賣的，我們知道。\n\n但我們從開品牌的第一天就決定不走這條路。因為我們自己就是敏感體質，太清楚那種「被嚇到不敢不買」的感覺有多糟。\n\n你沒有那麼脆弱。你只是需要一個把自己整理回來的方式，而那個方式，應該由你自己選。\n\n需要的時候，我們在。不需要的時候，替你開心。"},
- {id:"T6", platform:"threads", layer:"hook", day:"7/10", when:"7/10（五）中午", thread:[],
+ {id:"T6", platform:"threads", layer:"hook", day:"7/10", when:"❌ 不發（7/12 Tony 裁定：說人話標準未過）", skip:true, thread:[],
   text:"休息了還是累的 3 個真相：①你缺的不是睡眠是切換 ②你帶回家的不只疲憊還有一整天吸到的情緒 ③躺著滑手機想明天的事，是換姿勢繼續上班。中了幾個？"},
- {id:"T7", platform:"threads", layer:"bridge", day:"7/10", when:"7/10（五）晚上", thread:[],
+ {id:"T7", platform:"threads", layer:"bridge", day:"7/10", when:"❌ 不發（7/12 Tony 裁定：說人話標準未過）", skip:true, thread:[],
   text:"下班回家第一件事你會做什麼？我們的客人最多人回答：先洗澡，把今天沖掉。你們呢"},
- {id:"T8", platform:"threads", layer:"bridge", day:"7/11", when:"7/11（六）中午", thread:[],
+ {id:"T8", platform:"threads", layer:"bridge", day:"7/11", when:"❌ 不發（7/12 Tony 裁定：說人話標準未過）", skip:true, thread:[],
   text:"很多客人說，把泡澡變成睡前儀式之後，好像比較能把「今天」留在浴室裡，我們自己也是這樣用的，形式不重要，重要的是你的一天值得一個好好的結尾"},
- {id:"FB-B", platform:"fb", layer:"hook", day:"7/11", when:"7/11（六）晚上", title:"母文 B：「為什麼休息了還是累」", thread:[],
+ {id:"FB-B", platform:"fb", layer:"hook", day:"7/11", when:"✅ 已發佈（7/12 晚，Tony 稍改字後發）", done:true, title:"母文 B：「為什麼休息了還是累」", thread:[],
   text:"「我週末都在睡覺，為什麼星期一還是累？」\n\n如果你也這樣，先說結論：你可能不是缺睡眠，是缺「切換」。\n\n尤其是敏感體質的人，累的來源常常不是身體，是這三個：\n\n一、你整天都在接收。同事的低氣壓、客戶的情緒、捷運上陌生人的煩躁——你的接收器比別人靈敏，別人下班只帶回一個疲憊的身體，你帶回來一整天吸到的情緒。\n\n二、你的環境沒有換頻。工作的桌子、追劇的沙發、睡覺的床，如果你的一天在這三個點之間循環，空間的感覺是連在一起的，身體會分不清「現在可以放鬆了嗎」。\n\n三、你沒有「結束今天」的儀式。睡覺不等於結束，躺在床上滑手機想著明天的會議，那不是休息，是換個姿勢繼續上班。\n\n所以真正有用的方向，不是睡更多，是幫一天做一個「收尾動作」——可能是洗澡的時候認真感覺水沖過去、可能是睡前把房間窗戶開五分鐘、可能是一小段只屬於你的安靜。\n\n很多客人跟我們說，他們把泡澡變成睡前儀式之後，好像比較能把「今天」留在浴室裡。我們自己也是這樣用的。\n\n形式不重要，重要的是：你的一天，值得一個好好的結尾。"},
- {id:"T9", platform:"threads", layer:"hook", day:"7/12", when:"7/12（日）中午", thread:[],
+ {id:"T9", platform:"threads", layer:"hook", day:"7/12", when:"❌ 不發（7/12 Tony 裁定：說人話標準未過）", skip:true, thread:[],
   text:"敏感不是缺陷，是你的接收器比較好，學會關機就好了"},
- {id:"T10", platform:"threads", layer:"stance", day:"7/12", when:"7/12（日）晚上", thread:[],
+ {id:"T10", platform:"threads", layer:"stance", day:"7/12", when:"❌ 不發（7/12 Tony 裁定：說人話標準未過）", skip:true, thread:[],
   text:"我們不會跟你說不買會怎樣，因為不會怎樣，你本來就好好的，我們只是教你在需要的時候，怎麼把自己照顧回來"},
- {id:"T11", platform:"threads", layer:"hook", day:"7/13", when:"7/13（一）中午", thread:[],
-  text:"星期一的你：門還沒進辦公室，光看大家的表情就知道今天氣氛不對。高敏人的雷達沒有休假日"}
+ {id:"T11", platform:"threads", layer:"hook", day:"7/13", when:"⚠️ 重寫中（7/13 一 中午檔，等 Tony 選稿）", thread:[
+   {who:"tony", at:"7/12 晚", text:"T11 不行 你再重寫 我打槍 blue monday 的話題太無聊 太常講了 人類無感"},
+   {who:"claude", at:"7/12 晚", text:"收到，星期一話題整個放棄，重寫三個候選（都過了說人話自檢＋法規 🟢 無產品無宣稱）：\n\n【A・社交宿醉】主題掛「高敏感」\n聚會明明很開心，回家卻累到一句話都不想講。朋友以為你玩到沒電，其實是你整晚開著接收器：誰的笑聲、誰的欲言又止、哪兩個人之間怪怪的，全都收進來了。這種「社交宿醉」，你也有嗎？\n\n【B・腦補劇場】主題掛「內耗」\n訊息已讀兩小時沒回，你已經回想完自己是不是講錯話，連道歉的草稿都打好了。結果對方只是去洗澡。高敏人的腦補劇場，你最長演過多久？\n\n【C・安靜的人】主題掛「高敏感」\n安靜的人不是沒意見。會議上都不說話的那個同事，可能是全場接收最多的人：誰在敷衍、誰在緊繃、老闆那句話是說給誰聽的，他都知道，只是說出來太耗電了。你身邊有這種人嗎？還是，你就是？\n\n回「用A」「用B」「用C」或改完貼回來，我更新卡片。"}
+  ],
+  text:"（原稿已打槍，重寫候選見 💬 討論串，Tony 選定後更新此卡）\n\n原稿存查：星期一的你：門還沒進辦公室，光看大家的表情就知道今天氣氛不對。高敏人的雷達沒有休假日"}
 ];
 const LAYER = {hook:["b-hook","🪝 鉤子"], stance:["b-stance","🛡️ 立場"], bridge:["b-bridge","🌉 承接"]};
 const KEY = "aurora-w28-v3";
@@ -189,7 +192,7 @@ let state = lsGet();
 let filter = "pending";
 
 function save(){ lsSet(state); }
-function getS(id){ if(state[id]) return state[id]; const p = POSTS.find(x=>x.id===id); const baked = p&&p.metrics; return {status:(p&&p.done)?"published":"pending", pendingMsgs:[], metricsSent:!!baked, metrics:baked||null}; }
+function getS(id){ const p = POSTS.find(x=>x.id===id); const baked = p&&p.metrics; const base = {status:(p&&p.done)?"published":(p&&p.skip)?"skipped":"pending", pendingMsgs:[], metricsSent:!!baked, metrics:baked||null}; const m = state[id] ? Object.assign({}, base, state[id]) : base; if(!m.metrics && baked) m.metrics = baked; return m; }
 function setS(id, patch){ state[id] = Object.assign(getS(id), patch); save(); }
 function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2600); }
 function todayStr(){ const d=new Date(); return (d.getMonth()+1)+"/"+d.getDate(); }
@@ -213,13 +216,13 @@ function render(){
   const today = todayStr();
   const ALL = POSTS.concat((state.__adhoc||[]).filter(a=>!POSTS.some(p=>p.id===a.id)).map(a=>({id:a.id, platform:a.platform, layer:"", day:a.day, when:a.when, thread:[], text:a.text, adhoc:true})));
   let curDay = null, shown = 0;
-  const counts = {pending:0, approved:0, published:0, changes:0};
-  ALL.forEach(p=>{ counts[getS(p.id).status]++; });
+  const counts = {pending:0, approved:0, published:0, changes:0, skipped:0};
+  ALL.forEach(p=>{ const st = getS(p.id).status; if(counts[st]!=null) counts[st]++; });
   ALL.forEach(p=>{
     const s = getS(p.id);
     const archived = s.status==="published" && s.metricsSent===true;
     let visible;
-    if(filter==="archived"){ visible = archived; }
+    if(filter==="archived"){ visible = archived || s.status==="skipped"; }
     else if(archived){ visible = false; }  // 已發佈+已回報數據 → 只在歸檔區
     else { visible = filter==="all" || (filter==="today" && p.day===today) || (filter===s.status); }
     if(!visible) return;
@@ -248,10 +251,11 @@ function render(){
     (p.thread||[]).forEach(m=>{
       threadHtml += `<div class="msg ${m.who}"><span class="who">${m.who==="tony"?"👤 東泥":"🤖 Claude"}・${m.at||""}</span>${esc(m.text)}</div>`;
     });
-    (s.pendingMsgs||[]).forEach(m=>{
+    const pendMsgs = (s.pendingMsgs||[]).filter(m=>!(p.thread||[]).some(t=>t.who==="tony" && t.text.trim()===String(m).trim()));
+    pendMsgs.forEach(m=>{
       threadHtml += `<div class="msg tony pending"><span class="who">👤 東泥・已送出，等 Claude 回覆</span>${esc(m)}</div>`;
     });
-    const nThread = (p.thread||[]).length + (s.pendingMsgs||[]).length;
+    const nThread = (p.thread||[]).length + pendMsgs.length;
     card.innerHTML = `
       <div class="meta"><span class="badge" style="background:#f1ede0">${p.id}</span>${pb}${lb}${p.adhoc?'<span class="badge" style="background:#fdeaea;color:#b0453c">⚡ 臨時</span>':''}${timeBadge}${title}<span class="when">📅 ${p.when}</span></div>
       <div class="content">${esc(p.text)}</div>
@@ -347,7 +351,7 @@ function submitAdhoc(){
   const post = {id:id, platform:plat, day:todayStr(), when:todayStr()+"（臨時）", text:txt, at:new Date().toISOString()};
   state.__adhoc = (state.__adhoc||[]).concat([post]);
   save();
-  sendToClaude({kind:"adhoc", week:"W28", id:id, platform:plat, text:txt, at:post.at}, "已建立 "+id+"，送 Claude 審核中（結果 LINE 通知）");
+  sendToClaude({kind:"adhoc", week:"W28", id:id, platform:plat, day:post.day, when:post.when, text:txt, at:post.at}, "已建立 "+id+"，送 Claude 審核中（結果 LINE 通知）");
   document.getElementById("adhoc-text").value = "";
   toggleAdhoc();
   render();
@@ -360,9 +364,24 @@ document.getElementById("filters").addEventListener("click", e=>{
     try{ render(); }catch(err){ document.getElementById("list").innerHTML = '<div class="empty">⚠️ 頁面錯誤：'+err.message+'<br>請截圖給 Claude</div>'; }
   }
 });
-try{ render(); }catch(err){
-  document.getElementById("list").innerHTML = '<div class="empty">⚠️ 頁面初始化錯誤：'+err.message+'<br>請截圖給 Claude</div>';
+function boot(){
+  try{ render(); }catch(err){
+    document.getElementById("list").innerHTML = '<div class="empty">⚠️ 頁面初始化錯誤：'+err.message+'<br>請截圖給 Claude</div>';
+  }
 }
+// v5 跨機同步：開頁先抓雲端最新狀態（Apps Script 重播 inbox 帳本算出），抓不到才退回本機紀錄
+fetch(RESULT_ENDPOINT + "?secret=aurora2026&action=state&week=W28")
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(!data || !data.ok || !data.state) throw new Error("no state");
+    state = data.state;
+    lsSet(state);
+    boot();
+  })
+  .catch(function(){
+    toast("⚠️ 離線模式：顯示本機紀錄（雲端狀態抓不到，跨機同步暫停）");
+    boot();
+  });
 
 // 送出動作後 8 秒自動刷新一次，抓 Claude 剛回的內容（不做定時輪詢）
 function refreshAfterAction(){
