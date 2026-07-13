@@ -3,9 +3,9 @@
 param([string]$msg = "update")
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-# 路徑自動偵測：repo = 本腳本所在資料夾；主檔 = 上一層的 發文中心_W28.html
+# 路徑自動偵測：repo = 本腳本所在資料夾；主檔 = 上一層的 發文中心.html（v3 改通用名，不再每週換檔名）
 $repo = $PSScriptRoot
-$src = Join-Path (Split-Path $repo -Parent) "發文中心_W28.html"
+$src = Join-Path (Split-Path $repo -Parent) "發文中心.html"
 $dest = Join-Path $repo "index.html"
 $url = "https://seethelight-tony.github.io/aurora-center/"
 

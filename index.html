@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>極光盾 · 社群發文中心 W28</title>
+<title>極光盾 · 社群發文中心</title>
 <style>
   :root{
     --gold:#e6ca5c; --gold-dark:#c9a93a; --bg:#faf8f2; --card:#ffffff;
@@ -85,7 +85,7 @@
 </head>
 <body>
 <header>
-  <h1>🛡️ 極光盾 · 社群發文中心 <span style="font-size:12px;color:var(--muted)">W28（7/7–7/13）v5 跨機同步</span></h1>
+  <h1>🛡️ 極光盾 · 社群發文中心 <span style="font-size:12px;color:var(--muted)">W29（7/14–7/20）v6 逐日產線｜W28 在「📦 歸檔」</span></h1>
   <div class="stats">
     <div class="stat pending">待發 <b id="st-pending">0</b></div>
     <div class="stat published">已發佈 <b id="st-published">0</b></div>
@@ -101,12 +101,15 @@
 </header>
 <main>
   <div class="strategy">
-    <h2>⚔️ 本週策略（W28 · 起步第一週）</h2>
+    <h2>⚔️ 本週策略（W29 · 第二週）</h2>
     <div class="grid">
-      <div class="cell"><b>目標</b><br>讓演算法重新認識帳號＋給人「追蹤理由」。零賣貨、零連結，衝回覆率與轉發。</div>
-      <div class="cell"><b>定位</b><br>不販賣恐懼的清醒陪伴者——立場尖、語氣暖，「我們」視角。</div>
-      <div class="cell"><b>火力</b><br>敏感體質安定線（母文B）＋品牌立場（母文A）。Threads 11＋FB 2，IG 暫緩。</div>
-      <div class="cell"><b>本週 KPI</b><br>回覆率 >1%（基準 0.03%）、新粉 >30、發後 1hr 內回留言。</div>
+      <div class="cell"><b>目標</b><br>打破回覆 0：🔥 暖帳號實驗——每天 10 分鐘在「高敏感／內耗」主題圈真人留言 3–5 則（手打，不用 AI 擬稿）。</div>
+      <div class="cell"><b>火力</b><br>母文D「復合文」（立場黃金素材）＋母文C「高負載場所」（農曆七月預熱）。Threads 7＋FB 2，IG 暫緩。</div>
+      <div class="cell"><b>生產規則</b><br>逐日產線：每天只上「明天要發」的卡（W28 教訓：一次寫滿整週→整批報廢）。時事插單槽：颱風/熱浪出現→當天換稿。</div>
+      <div class="cell"><b>本週 KPI</b><br>首批非零回覆（1–3 則）、Threads 瀏覽 4,000–6,000、發後 1hr 內回留言。</div>
+    </div>
+    <div style="margin-top:10px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:9px 12px; font-size:12.5px; line-height:1.8;">
+      <b style="color:var(--gold-dark)">📅 W29 排程</b>（卡片逐日上架）：7/14(二)21:30 <b>T1 空間的感覺</b> ✅已上卡｜7/15(三)12:30 T2 氣味知識｜7/16(四)12:30 T3 復合文拆版＋21:00 FB-C 母文D｜7/17(五)21:30 T4 社交宿醉｜7/18(六)12:30 T5 高負載場所後的整理｜7/19(日)12:30 T6 腦補劇場＋21:00 FB-D 母文C｜7/20(一)12:30 T7 能量觀。完整計畫見 vault《2026-W29發文計畫》。
     </div>
   </div>
   <div id="today-banner"></div>
@@ -186,10 +189,15 @@ const POSTS = [
    {who:"tony", at:"7/12 深夜", text:"我選 C安靜的人（主題掛「高敏感」）但我覺得這種開放式問題 在threads 好像讓人難回什麼 或不知道要回什麼  這我的看法也不一定對 你不需要一定順著我的意"},
    {who:"claude", at:"7/12 深夜", text:"定稿 C。你的顧慮查過數據後的判斷：C 的收尾是偽開放題——回「我就是」三個字就完成回覆，門檻跟 A/B 選擇題差不多低，跟 T7 那種要人寫故事的開放題不同；而且這題會讓人 tag 身邊安靜的同事，tag 就是轉發。\n\n更重要的數據事實：本週全部貼文回覆數都是 0，連低門檻 A/B 的 T4（1,212 瀏覽）也是——問句型式還不是主變數，帳號冷才是。「問句型式 vs 回覆率」已列入週報固定觀察項，讓數據累積後說話。\n\n發佈提醒：主題掛「高敏感」，發後 1 小時內回留言。"}
   ],
-  text:"安靜的人不是沒意見。會議上都不說話的那個同事，可能是全場接收最多的人：誰在敷衍、誰在緊繃、老闆那句話是說給誰聽的，他都知道，只是說出來太耗電了。你身邊有這種人嗎？還是，你就是？"}
+  text:"安靜的人不是沒意見。會議上都不說話的那個同事，可能是全場接收最多的人：誰在敷衍、誰在緊繃、老闆那句話是說給誰聽的，他都知道，只是說出來太耗電了。你身邊有這種人嗎？還是，你就是？"},
+ {id:"W29-T1", platform:"threads", layer:"hook", day:"7/14", when:"7/14（二）晚上・主題掛「能量」", thread:[
+   {who:"claude", at:"7/13 午", text:"W29 第一單，五步產線前四步已跑完：\n\n① 生成：空間感受切角（意圖本月首用，R5 ✓；薰香粉空間線鋪墊）\n② 說人話：刪掉「不是你想太多——」開頭（跟 T1 裝置重複＋「不是X」句型變體）；「輕鬆一大截」改「鬆一大口氣」\n③ AI 味七問：過（證據=讀者自身經驗，人人可自驗）\n④ 法規 v1.6：🟢 低風險——無產品、無效果宣稱；「空氣悶悶的」是共感不是嚇人\n\n⑤ 待你注魂：可以加你自己家最舒服角落的真實細節（有真實感回覆率更高）。直接用或改完貼回討論串，回「確認」就定稿。發後 1 小時內回留言。"}
+  ],
+  text:"同一個家，有的角落待著特別放鬆，有的角落坐五分鐘就想走。房間亂了一週，連空氣都悶悶的；大掃除完，整個人鬆一大口氣。空間是有感覺的，敏感的人尤其騙不了自己。你家待起來最舒服的是哪個角落？"}
 ];
 const LAYER = {hook:["b-hook","🪝 鉤子"], stance:["b-stance","🛡️ 立場"], bridge:["b-bridge","🌉 承接"]};
-const KEY = "aurora-w28-v3";
+const KEY = "aurora-center-v6";
+const WEEK = "W29"; // 動作紀錄標記用；開頁抓狀態不分週（帳本全重播，W28 歸檔照樣還原）
 let MEM = {};
 function lsGet(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ return MEM; } }
 function lsSet(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(e){ MEM = v; } }
@@ -209,7 +217,7 @@ function sendToClaude(payload, okMsg){
       const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "W28審核結果.json";
+      a.download = WEEK + "審核結果.json";
       a.click();
       toast("網路傳送失敗，已改下載檔案（Claude 會偵測下載資料夾）");
     });
@@ -311,7 +319,7 @@ function setStatus(id, st){
   const cur = getS(id);
   const next = cur.status===st ? "pending" : st;
   setS(id, {status: next});
-  sendToClaude({kind:"status", week:"W28", id:id, status:next, at:new Date().toISOString()},
+  sendToClaude({kind:"status", week:WEEK, id:id, status:next, at:new Date().toISOString()},
     next==="approved" ? "✅ "+id+" 已通過（已同步 Claude）" :
     next==="published" ? "📮 "+id+" 已發佈（已同步 Claude）" : id+" 已改回待審（已同步）");
   render();
@@ -323,7 +331,7 @@ function sendComment(id){
   const val = ta.value.trim();
   if(!val){ toast("輸入框是空的"); return; }
   const s = getS(id);
-  sendToClaude({kind:"comment", week:"W28", id:id, text:val, at:new Date().toISOString()}, "已送給 Claude 💬 回覆後會自動出現在溝通紀錄（LINE 也會通知你）");
+  sendToClaude({kind:"comment", week:WEEK, id:id, text:val, at:new Date().toISOString()}, "已送給 Claude 💬 回覆後會自動出現在溝通紀錄（LINE 也會通知你）");
   s.pendingMsgs = (s.pendingMsgs||[]).concat([val]);
   setS(id, {status:"changes", pendingMsgs:s.pendingMsgs});
   ta.value = "";
@@ -333,7 +341,7 @@ function sendComment(id){
 }
 function sendMetrics(id){
   const v = x => parseInt(document.getElementById("m-"+x+"-"+id).value||"0");
-  const data = {kind:"metrics", week:"W28", id:id, views:v("views"), likes:v("likes"), replies:v("replies"), reposts:v("reposts"), follows:v("follows"), at:new Date().toISOString()};
+  const data = {kind:"metrics", week:WEEK, id:id, views:v("views"), likes:v("likes"), replies:v("replies"), reposts:v("reposts"), follows:v("follows"), at:new Date().toISOString()};
   if(data.views===0 && data.likes===0){ toast("至少填瀏覽或讚"); return; }
   sendToClaude(data, "數據已送出 📊 已進入 Claude 學習迴圈");
   setS(id, {metricsSent:true, metrics:{views:data.views, likes:data.likes, replies:data.replies, reposts:data.reposts, follows:data.follows}});
@@ -356,7 +364,7 @@ function submitAdhoc(){
   const post = {id:id, platform:plat, day:todayStr(), when:todayStr()+"（臨時）", text:txt, at:new Date().toISOString()};
   state.__adhoc = (state.__adhoc||[]).concat([post]);
   save();
-  sendToClaude({kind:"adhoc", week:"W28", id:id, platform:plat, day:post.day, when:post.when, text:txt, at:post.at}, "已建立 "+id+"，送 Claude 審核中（結果 LINE 通知）");
+  sendToClaude({kind:"adhoc", week:WEEK, id:id, platform:plat, day:post.day, when:post.when, text:txt, at:post.at}, "已建立 "+id+"，送 Claude 審核中（結果 LINE 通知）");
   document.getElementById("adhoc-text").value = "";
   toggleAdhoc();
   render();
@@ -375,7 +383,8 @@ function boot(){
   }
 }
 // v5 跨機同步：開頁先抓雲端最新狀態（Apps Script 重播 inbox 帳本算出），抓不到才退回本機紀錄
-fetch(RESULT_ENDPOINT + "?secret=aurora2026&action=state&week=W28")
+// v6：不帶 week 參數＝全帳本重播，W28 歸檔狀態與 W29 新動作同時還原（卡片 ID 跨週不重複）
+fetch(RESULT_ENDPOINT + "?secret=aurora2026&action=state")
   .then(function(r){ return r.json(); })
   .then(function(data){
     if(!data || !data.ok || !data.state) throw new Error("no state");
