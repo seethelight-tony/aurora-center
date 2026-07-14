@@ -166,15 +166,17 @@ function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg
 function todayStr(){ const d=new Date(); return (d.getMonth()+1)+"/"+d.getDate(); }
 function esc(s){ return s.replace(/</g,"&lt;"); }
 function sendToClaude(payload, okMsg){
-  return fetch(RESULT_ENDPOINT, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(payload)})
-    .then(()=>toast(okMsg))
+  // cors 模式＋讀回條：新信箱（Apps Script）會回 {ok:true}，收到才算真的送達
+  return fetch(RESULT_ENDPOINT, {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(payload)})
+    .then(r=>{ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+    .then(j=>{ if(j && j.ok){ toast(okMsg+"（✓已確認送達）"); } else { throw new Error("no-ok"); } })
     .catch(()=>{
       const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = WEEK + "審核結果.json";
       a.click();
-      toast("網路傳送失敗，已改下載檔案（Claude 會偵測下載資料夾）");
+      toast("⚠️ 未確認送達！已改下載檔案備份——請跟 Claude 說一聲");
     });
 }
 function render(){
