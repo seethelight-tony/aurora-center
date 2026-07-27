@@ -59,8 +59,9 @@ function buildState_(week) {
         reposts: p.reposts || 0, follows: p.follows || 0
       };
     } else if (p.kind === "comment" && id) {
+      // v3（2026-07-24）：留言不再覆寫 status。留言是跨狀態的附加動作——
+      // 已發佈的貼文留言後要留在「已發佈」，只掛 pendingMsgs 當「待回覆」，不打回討論中/待發。
       if (!state[id]) state[id] = {};
-      state[id].status = "changes";
       state[id].pendingMsgs = (state[id].pendingMsgs || []).concat([p.text]);
     } else if (p.kind === "adhoc" && id) {
       if (!state.__adhoc) state.__adhoc = [];
