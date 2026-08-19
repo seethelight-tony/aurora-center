@@ -63,6 +63,16 @@ function buildState_(week) {
       // 已發佈的貼文留言後要留在「已發佈」，只掛 pendingMsgs 當「待回覆」，不打回討論中/待發。
       if (!state[id]) state[id] = {};
       state[id].pendingMsgs = (state[id].pendingMsgs || []).concat([p.text]);
+    } else if (p.kind === "delete" && id) {
+      // v4（2026-08-19）：補上 delete 重播。缺這段的後果是「按了刪除、卡片還一直在」——
+      // 網頁端只把 deleted:true 寫在 localStorage，刪完 8 秒自動 reload 抓 ?action=state，
+      // 而這裡算出來的狀態整包覆蓋 state，沒有 deleted 就等於把刪除紀錄沖掉，卡片復活。
+      if (!state[id]) state[id] = {};
+      state[id].deleted = true;
+      // 臨時卡連本體一起移除，否則它會從 __adhoc 被重新畫出來
+      if (state.__adhoc) {
+        state.__adhoc = state.__adhoc.filter(function(a){ return a.id !== id; });
+      }
     } else if (p.kind === "adhoc" && id) {
       if (!state.__adhoc) state.__adhoc = [];
       let day = p.day, when = p.when;

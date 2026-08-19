@@ -346,6 +346,30 @@ let MEM = {};
 function lsGet(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ return MEM; } }
 function lsSet(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(e){ MEM = v; } }
 let state = lsGet();
+// 🗑️ 刪除墓碑（2026-08-19 修）：修「按了刪除、卡片還一直在」的問題。
+// 原因是三件事湊起來的：①delPost 只把 deleted:true 寫進 state ②刪完 8 秒 refreshAfterAction 會強制 reload
+// ③開頁抓到的雲端狀態是「整包覆蓋」state（見本檔最下方 fetch），而 Apps Script 的 buildState_()
+// 只重播 status/metrics/comment/adhoc，**沒有 delete 分支**——雲端狀態一蓋回來，deleted 旗標就被沖掉，卡片復活。
+// 解法：刪除紀錄另存一支獨立的 localStorage key，雲端整包覆蓋沖不到它；每次拿到雲端狀態後再套回去。
+// ⚠️ 這是本機層的止血。跨機同步（家裡刪、公司也要消失）仍需 Apps Script 補上 delete 重播，補上後這段會自動變成多餘的保險。
+const DEL_KEY = KEY + "-deleted";
+let DEL_MEM = [];
+function delGet(){ try { return JSON.parse(localStorage.getItem(DEL_KEY) || "[]"); } catch(e){ return DEL_MEM; } }
+function delAdd(id){
+  const a = delGet();
+  if(a.indexOf(id) < 0){
+    a.push(id);
+    try { localStorage.setItem(DEL_KEY, JSON.stringify(a)); } catch(e){ DEL_MEM = a; }
+  }
+}
+// 把墓碑套回 state：雲端回來的狀態不含刪除紀錄，這步負責補上
+function applyDeleted(){
+  const a = delGet();
+  if(!a.length) return;
+  a.forEach(function(id){ state[id] = Object.assign({}, state[id] || {}, {deleted:true}); });
+  lsSet(state);
+}
+applyDeleted();
 // 幽靈臨時卡清除（2026-08-11 新增）：臨時發文表單會把卡片存在「這台瀏覽器的 localStorage」裡（state.__adhoc），
 // 母檔刪不到它。若該篇事後被判定為重複、已併進正式卡片，幽靈卡仍會留在畫面上被誤送數據／誤按刪除。
 // AD-184684 ＝ AD-406218（8/6 乖乖梗）的重送，8/7 已判重複未建卡，但 8/10 又從幽靈卡送了一次數據 → 在此清掉。
@@ -502,6 +526,7 @@ function delPost(id){
   if(!p) return;
   if(!confirm("確定刪除「"+id+"」這篇？\n刪了就不會發，也會通知 Claude 從系統永久移除。")) return;
   setS(id, {deleted:true});
+  delAdd(id);   // 墓碑另存：8 秒後 reload 抓回雲端狀態時，這筆刪除才不會被整包覆蓋沖掉
   sendToClaude({kind:"delete", week:WEEK, id:id, at:new Date().toISOString()},
     "🗑️ 已刪除 "+id+"（已通知 Claude 永久移除）");
   render();
@@ -571,11 +596,13 @@ fetch(RESULT_ENDPOINT + "?secret=aurora2026&action=state")
   .then(function(data){
     if(!data || !data.ok || !data.state) throw new Error("no state");
     state = data.state;
+    applyDeleted();   // ⚠️ 一定要在整包覆蓋之後：雲端狀態不含刪除紀錄，不套回墓碑刪掉的卡片會復活
     lsSet(state);
     boot();
   })
   .catch(function(){
     toast("⚠️ 離線模式：顯示本機紀錄（雲端狀態抓不到，跨機同步暫停）");
+    applyDeleted();
     boot();
   });
 
