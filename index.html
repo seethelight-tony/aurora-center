@@ -83,6 +83,13 @@
   .toast{position:fixed; top:76px; left:50%; transform:translateX(-50%); background:#2b2b2b; color:#fff; border-radius:24px; padding:11px 24px; font-size:13.5px; opacity:0; transition:.3s; z-index:99; pointer-events:none; max-width:92%; text-align:center;}
   .toast.show{opacity:1;}
   .empty{text-align:center; color:var(--muted); padding:30px; font-size:14px;}
+  .arch-bar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:4px 0 12px;}
+  .arch-bar input{flex:1; min-width:220px; border:1px solid var(--line); border-radius:10px; padding:9px 12px; font-size:13.5px; background:#fff; font-family:inherit;}
+  .arch-bar .hint{font-size:11.5px; color:var(--muted); width:100%;}
+  .arch-month{display:flex; gap:10px; align-items:center; flex-wrap:wrap; background:#fff; border:1px solid var(--line); border-radius:12px; padding:11px 14px; margin:12px 0 8px; cursor:pointer; font-size:13.5px; user-select:none;}
+  .arch-month.open{border-color:var(--gold); background:#fffdf5;}
+  .arch-month .arrow{color:var(--muted); width:12px;}
+  .arch-month .sum{color:var(--muted); font-size:12.5px; margin-left:auto; text-align:right;}
 </style>
 </head>
 <body>
@@ -416,6 +423,33 @@ function sendToClaude(payload, okMsg){
       toast("⚠️ 未確認送達！已改下載檔案備份——請跟 Claude 說一聲");
     });
 }
+// ── 歸檔區：按月收合＋搜尋＋逾期未回填自動歸檔（2026-08-21 v2.1.1）
+let archOpen = {}, archQuery = "", archFocus = false;
+function pDate(p){ if(!p.day) return null; const m = /^(\d{1,2})\/(\d{1,2})$/.exec(String(p.day).trim()); if(!m) return null; const now = new Date(); let y = now.getFullYear(); const mo = parseInt(m[1],10), d = parseInt(m[2],10); if(mo > now.getMonth()+2) y -= 1; return new Date(y, mo-1, d); }
+function monthKey(p){ const dt = pDate(p); if(!dt) return "未知月份"; return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0"); }
+function isStale(p,s){ if(!(s.status==="published" && !s.metricsSent)) return false; const dt = pDate(p); if(!dt) return false; return (Date.now()-dt.getTime())/86400000 > 14; }
+function matchesQuery(p){ const q = archQuery.trim().toLowerCase(); if(!q) return true; return [p.id, p.when, p.title||"", p.text].join(" ").toLowerCase().includes(q); }
+function toggleMonth(k){ archOpen[k] = !archOpen[k]; render(); }
+function setArchQuery(v){ archQuery = v; archFocus = true; render(); }
+function renderArchive(list, buckets, order){
+  const bar = document.createElement("div"); bar.className = "arch-bar";
+  bar.innerHTML = `<input id="arch-q" type="search" placeholder="🔍 搜歸檔：卡片編號、關鍵字、主題…" value="${archQuery.replace(/"/g,"&quot;")}" oninput="setArchQuery(this.value)"><span class="hint">按月份收合，點月份展開；搜尋時全部展開。逾 14 天未回填的已發佈卡會自動進這裡，補填數據即可。</span>`;
+  list.appendChild(bar);
+  order.sort().reverse();
+  if(!order.length){ const e = document.createElement("div"); e.className = "empty"; e.textContent = archQuery ? "沒有符合的歸檔" : "還沒有歸檔"; list.appendChild(e); }
+  order.forEach(k=>{
+    const items = buckets[k].slice().reverse();
+    let views = 0, follows = 0, best = null, filled = 0;
+    items.forEach(it=>{ const m = it.s.metrics; if(m && m.views!=null){ filled++; views += Number(m.views)||0; follows += Number(m.follows)||0; if(!best || Number(m.views) > Number(best.s.metrics.views)) best = it; } });
+    const open = archQuery ? true : !!archOpen[k];
+    const h = document.createElement("div"); h.className = "arch-month" + (open ? " open" : "");
+    h.innerHTML = `<span class="arrow">${open?"▾":"▸"}</span><b>${k}</b><span class="sum">${items.length} 篇・瀏覽 ${views.toLocaleString()}・追蹤 +${follows}${best?`・最佳 ${best.p.id}（${Number(best.s.metrics.views).toLocaleString()}）`:""}${filled<items.length?`・${items.length-filled} 篇未回填/取消`:""}</span>`;
+    h.onclick = ()=>toggleMonth(k);
+    list.appendChild(h);
+    if(open) items.forEach(it=>list.appendChild(it.card));
+  });
+  if(archFocus){ const inp = document.getElementById("arch-q"); if(inp){ inp.focus(); const L = inp.value.length; try{ inp.setSelectionRange(L,L); }catch(e){} } archFocus = false; }
+}
 function render(){
   const list = document.getElementById("list");
   const banner = document.getElementById("today-banner");
@@ -423,11 +457,12 @@ function render(){
   const today = todayStr();
   const ALL = POSTS.concat((state.__adhoc||[]).filter(a=>!POSTS.some(p=>p.id===a.id)).map(a=>({id:a.id, platform:a.platform, layer:"", day:a.day, when:a.when, thread:[], text:a.text, adhoc:true})));
   let curDay = null, shown = 0;
+  const buckets = {}, order = [];
   const counts = {pending:0, published:0, replies:0};
   ALL.forEach(p=>{
     const s = getS(p.id);
     if(s.deleted) return;
-    const isArchived = (s.status==="published" && s.metricsSent===true) || s.status==="skipped";
+    const isArchived = (s.status==="published" && s.metricsSent===true) || s.status==="skipped" || isStale(p,s);
     if(unresolved(p)>0) counts.replies++;   // 待回覆：跨狀態，已發佈的也算
     if(isArchived) return;
     if(s.status==="published") counts.published++;
@@ -436,7 +471,7 @@ function render(){
   ALL.forEach(p=>{
     const s = getS(p.id);
     if(s.deleted) return;
-    const isArchived = (s.status==="published" && s.metricsSent===true) || s.status==="skipped";
+    const isArchived = (s.status==="published" && s.metricsSent===true) || s.status==="skipped" || isStale(p,s);
     let visible;
     if(filter==="replies"){ visible = unresolved(p)>0; }              // 待回覆分頁：跨狀態，已發佈也會出現
     else if(filter==="archived"){ visible = isArchived; }
@@ -445,6 +480,7 @@ function render(){
     else if(filter==="published"){ visible = s.status==="published"; }
     else { visible = filter==="all" || (filter==="today" && p.day===today); }
     if(!visible) return;
+    if(filter==="archived" && !matchesQuery(p)) return;
     shown++;
     if(p.day && p.day!==curDay && (filter==="pending"||filter==="all")){
       curDay = p.day;
@@ -476,7 +512,7 @@ function render(){
     });
     const nThread = (p.thread||[]).length + pendMsgs.length;
     card.innerHTML = `
-      <div class="meta"><span class="badge" style="background:#f1ede0">${p.id}</span>${pb}${lb}${p.adhoc?'<span class="badge" style="background:#fdeaea;color:#b0453c">⚡ 臨時</span>':''}${timeBadge}${title}<span class="when">📅 ${p.when}</span></div>
+      <div class="meta"><span class="badge" style="background:#f1ede0">${p.id}</span>${pb}${lb}${p.adhoc?'<span class="badge" style="background:#fdeaea;color:#b0453c">⚡ 臨時</span>':''}${(s.status==="published"&&!s.metricsSent&&isStale(p,s))?'<span class="badge" style="background:#fff3e0;color:#b26a00">⚠️ 逾 14 天未回填</span>':''}${timeBadge}${title}<span class="when">📅 ${p.when}</span></div>
       <div class="content">${esc(p.text)}</div>
       <div class="thread">
         <h4>💬 這篇的溝通紀錄（改文案、給意見、問問題都寫這，Claude 回覆後會出現在這裡）</h4>
@@ -507,9 +543,16 @@ function render(){
         ${goBtn}
         <button class="abtn a-del" onclick="delPost('${p.id}')">🗑️ 刪除</button>
       </div>`;
-    list.appendChild(card);
+    if(filter==="archived"){
+      const mk = monthKey(p);
+      if(!buckets[mk]){ buckets[mk] = []; order.push(mk); }
+      buckets[mk].push({p:p, s:s, card:card});
+    } else {
+      list.appendChild(card);
+    }
   });
-  if(!shown) list.innerHTML = '<div class="empty">這個篩選條件下沒有項目</div>';
+  if(filter==="archived") renderArchive(list, buckets, order);
+  else if(!shown) list.innerHTML = '<div class="empty">這個篩選條件下沒有項目</div>';
   document.getElementById("st-pending").textContent = counts.pending;
   document.getElementById("st-published").textContent = counts.published;
   document.getElementById("st-changes").textContent = counts.replies;
